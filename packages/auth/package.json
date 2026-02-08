@@ -1,0 +1,24 @@
+{
+  "name": "@richei-group/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@richei-group/db": "workspace:*",
+    "@richei-group/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@richei-group/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
