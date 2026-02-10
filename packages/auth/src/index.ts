@@ -22,4 +22,33 @@ export const auth = betterAuth({
     },
   },
   plugins: [],
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        default: "USER",
+      },
+    },
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
+  rateLimit: {
+    customRules: {
+      "/forget-password": { window: 10, max: 3 },
+      "/sign-up": {
+        window: 10,
+        max: 3,
+      },
+    },
+  },
+  logger: {
+    level: "debug",
+    log(level, message, ...args) {
+      console.log(level, message, ...args);
+    },
+  },
 });
