@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { Route } from "next";
 import { Menu, X } from "lucide-react";
 import gsap from "gsap";
+import {cn} from "@/lib/utils";
 
 const navLinks: { href: Route; label: string }[] = [
   { href: "/", label: "Home" },
@@ -15,7 +16,7 @@ const navLinks: { href: Route; label: string }[] = [
   { href: "/contact" as Route, label: "Contact us" },
 ];
 
-export default function PublicNav() {
+export default function PublicNav({ className }: { className?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
@@ -56,7 +57,7 @@ export default function PublicNav() {
   }, [isOpen]);
 
   return (
-    <header className="md:px-8 w-full flex items-center justify-between relative z-50">
+    <header className={cn("md:px-8 w-full flex items-center justify-between relative z-50", className)}>
       <Image src="/images/logo.png" alt="Logo" width={75.72} height={41.7} />
 
       {/* Desktop Navigation */}
@@ -73,7 +74,7 @@ export default function PublicNav() {
           ))}
         </div>
         <Button className="text-lg rounded-full" size={"lg"}>
-          Learn More
+          <Link href="/auth/sign-in">Get Started</Link>
         </Button>
       </nav>
 
@@ -109,7 +110,7 @@ export default function PublicNav() {
           size={"lg"}
           onClick={() => setIsOpen(false)}
         >
-          Learn More
+          <Link href="/auth/sign-in">Get Started</Link>
         </Button>
       </div>
     </header>

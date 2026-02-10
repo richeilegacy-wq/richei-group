@@ -14,9 +14,12 @@ import HowItWorks from "@/components/landing/how-it-works";
 import FAQ from "@/components/landing/faq";
 import CTASection from "@/components/landing/cta-section";
 import PublicFooter from "@/components/landing/public-footer";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const heroRef = useRef<HTMLElement | null>(null);
+
+  const router = useRouter()
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -112,6 +115,7 @@ const page = () => {
                 className="text-lg rounded-full"
                 size={"lg"}
                 data-hero-cta
+                onClick={() => router.push("/auth/sign-in")}
               >
                 Get Started{" "}
                 <ArrowRight className="w-5 h-5 bg-white text-primary rounded-full p-1" />
