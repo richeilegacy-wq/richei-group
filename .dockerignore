@@ -1,0 +1,34 @@
+# Dependencies (will be installed inside the container)
+node_modules/
+**/node_modules/
+
+# Git
+.git
+.gitignore
+
+# Environment files (injected at runtime)
+.env*
+**/.env*
+!**/.env.example
+
+# Build artifacts
+**/dist/
+**/.next/
+**/.turbo/
+**/build/
+**/out/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Native app (not needed for server)
+apps/native/
+
+# Miscellaneous
+*.md
+*.log
+*.pem
