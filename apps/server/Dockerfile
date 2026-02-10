@@ -18,6 +18,7 @@ COPY packages/db/package.json     ./packages/db/package.json
 COPY packages/auth/package.json   ./packages/auth/package.json
 COPY packages/api/package.json    ./packages/api/package.json
 COPY apps/server/package.json     ./apps/server/package.json
+COPY apps/web/package.json        ./apps/web/package.json
 
 # Install all deps (including devDependencies needed for the build)
 RUN bun install --frozen-lockfile
