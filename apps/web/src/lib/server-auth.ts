@@ -2,11 +2,15 @@ import { authClient } from "./auth-client";
 import { headers } from "next/headers";
 
 export const serverAuth = async () => {
-  const data = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-      throw: true,
-    },
-  });
-  return data;
+  try {
+    const { data, error } = await authClient.getSession({
+      fetchOptions: {
+        headers: await headers(),
+      },
+    });
+    if (error) return null;
+    return data;
+  } catch {
+    return null;
+  }
 };
