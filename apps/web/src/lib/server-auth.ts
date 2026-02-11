@@ -3,14 +3,22 @@ import { headers } from "next/headers";
 
 export const serverAuth = async () => {
   try {
+    const reqHeaders = await headers();
+
     const { data, error } = await authClient.getSession({
       fetchOptions: {
-        headers: await headers(),
+        headers: reqHeaders,
       },
     });
-    if (error) return null;
+
+    if (error) {
+      console.error("[serverAuth] getSession returned error:", error);
+      return null;
+    }
+
     return data;
-  } catch {
+  } catch (err) {
+    console.error("[serverAuth] Exception during getSession:", err);
     return null;
   }
 };
