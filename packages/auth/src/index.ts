@@ -19,7 +19,14 @@ export const auth = betterAuth({
       sameSite: "none",
       secure: true,
       httpOnly: true,
+      ...(env.COOKIE_DOMAIN ? { domain: env.COOKIE_DOMAIN } : {}),
     },
+    crossSubDomainCookies: env.COOKIE_DOMAIN
+      ? {
+          enabled: true,
+          domain: env.COOKIE_DOMAIN,
+        }
+      : undefined,
   },
   plugins: [],
   user: {
