@@ -49,7 +49,8 @@ const FAQ = () => {
           <p className="text-primary/70 text-base leading-relaxed">
             Everything you need to know about RicHei Assets can be answered.
             Have more questions?{" "}
-            <Link href="/contact" className="text-primary underline font-medium">
+            {/* TODO: Add contact page */}
+            <Link href="/" className="text-primary underline font-medium">
               Contact
             </Link>{" "}
             our team.
