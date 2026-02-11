@@ -43,6 +43,8 @@ FROM oven/bun:1-slim AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
 # Copy Next.js standalone server
 COPY --from=build /app/apps/web/.next/standalone ./
