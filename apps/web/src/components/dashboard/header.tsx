@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Header = () => {
   const { data: session, isPending, error } = authClient.useSession();
   return (
-    <div className="w-full flex justify-between items-center px-4 py-2 mt-5 container mx-auto gap-5">
+    <div className="w-full flex justify-between items-center px-4 py-2 mt-5 container mx-auto gap-3 lg:gap-5">
       <div className="flex gap-2 w-full">
         <SidebarTrigger />
         <InputGroup className="w-full max-w-4xl rounded-lg">
@@ -39,7 +39,7 @@ const Header = () => {
             <p className="text-nowrap">Error</p>
           ) : (
             session?.user?.name && (
-              <p className="text-nowrap hidden md:block">{session.user.name.length > 15 ? session.user.name.slice(0, 15) + "..." : session.user.name}</p>
+              <p className="text-nowrap hidden lg:block">{session.user.name.length > 15 ? session.user.name.slice(0, 15) + "..." : session.user.name}</p>
             )
           )}
         </div>
