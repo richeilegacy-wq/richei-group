@@ -60,7 +60,10 @@ export function AppSidebar() {
         <SidebarGroup className="px-5">
           <SidebarMenu className="gap-1">
             {navItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
+              const isActive =
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
+                  : pathname.startsWith(item.href);
               return (
                 <SidebarMenuItem key={item.title}>
                   <Link href={item.href as never}>
@@ -89,11 +92,15 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter >
-        <Button onClick={async () => {
-          await authClient.signOut();
-          router.push("/");
-        }} size="lg" className="w-full rounded">
+      <SidebarFooter>
+        <Button
+          onClick={async () => {
+            await authClient.signOut();
+            router.push("/");
+          }}
+          size="lg"
+          className="w-full rounded"
+        >
           <LogOutIcon className="w-4 h-4" /> Sign Out
         </Button>
       </SidebarFooter>
