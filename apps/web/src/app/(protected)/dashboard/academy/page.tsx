@@ -1,9 +1,7 @@
-import React from 'react'
+import AcademyPage from "./academy";
 
 const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+  return <AcademyPage />;
+};
 
-export default page
+export default page;
