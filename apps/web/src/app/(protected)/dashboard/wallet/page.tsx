@@ -1,9 +1,7 @@
-import React from 'react'
+import Wallet from "./wallet";
 
 const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+  return <Wallet />;
+};
 
-export default page
+export default page;
