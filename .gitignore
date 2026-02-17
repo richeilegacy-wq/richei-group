@@ -48,3 +48,6 @@ coverage
 .cache
 tmp
 temp
+
+project.txt
+project-readme.md
