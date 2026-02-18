@@ -91,7 +91,6 @@
         "@richei-group/env": "workspace:*",
         "@types/pg": "catalog:",
         "dotenv": "catalog:",
-        "drizzle-orm": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
