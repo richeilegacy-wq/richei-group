@@ -6,29 +6,29 @@ import Link from "next/link";
 
 const faqs = [
   {
-    question: "Is this solely based on cryptocurrency",
+    question: "What is RicHei?",
     answer:
-      "Blockchain is our record-keeper, but your investment is in physical Nigerian land.",
+      "RicHei is a real estate investment and land development platform focused on creating structured, transparent, and profitable property opportunities for investors, agents, and communities.",
   },
   {
-    question: "Is it possible for me to visit the land",
+    question: "How can someone become a RicHei Land Agent?",
     answer:
-      "Yes. All our projects are physically verifiable. We organize scheduled site visits and can arrange private tours upon request.",
+      "Becoming a RicHei Land Agent means joining our sales and property advisory network to represent RicHei projects, market our properties, and earn commissions on successful sales. The process is simple: submit an application on our official platform, attend a short onboarding and orientation session, complete basic product knowledge training, get registered as an official RicHei Land Agent, receive marketing materials and project information, and start promoting and closing deals.",
   },
   {
-    question: "How are payments processed",
+    question: "Who can apply to be a RicHei Land Agent?",
     answer:
-      "We accept payments via direct bank transfer (Naira) and cryptocurrency (USDT/USDC). All transactions are recorded and reflected on your investor dashboard.",
+      "Individuals interested in real estate marketing, sales professionals, entrepreneurs, youth seeking income opportunities, and anyone passionate about property investment and client relations can apply to become a RicHei Land Agent.",
   },
   {
-    question: "Do you deal both on land and buildings",
+    question: "What are the requirements to become a RicHei Land Agent?",
     answer:
-      "Yes. RichHei Assets covers both raw land acquisitions and residential development projects across Nigeria.",
+      "You need strong communication skills, a basic understanding of sales and marketing, a commitment to ethical business practices, and a willingness to complete RicHei onboarding training.",
   },
   {
-    question: "How do non-crypto users navigate",
+    question: "How do RicHei Land Agents earn and what are the benefits?",
     answer:
-      "You don't need any crypto knowledge. Pay in Naira via bank transfer, and we handle the tokenization behind the scenes. Your dashboard works the same either way.",
+      "RicHei Land Agents earn through commission on every verified land sale, performance bonuses, incentive rewards for high-performing agents, and possible leadership roles within the agent network. Benefits include a flexible working structure, access to verified property listings, a structured commission plan, marketing support, training and mentorship, and the opportunity for long-term career growth in real estate. RicHei Land Agents are not just sales representatives; they are partners in building communities and creating investment opportunities.",
   },
 ];
 
@@ -40,16 +40,11 @@ const FAQ = () => {
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1.6fr] gap-12 md:gap-16">
         <div>
           <h2 className="text-4xl md:text-5xl font-bold text-primary leading-tight mb-6">
-            Frequently
-            <br />
-            Asked
-            <br />
-            Questions
+            Frequently Asked Questions (FAQ)
           </h2>
           <p className="text-primary/70 text-base leading-relaxed">
-            Everything you need to know about RicHei Assets can be answered.
-            Have more questions?{" "}
-            {/* TODO: Add contact page */}
+            Learn more about RicHei and how to become a RicHei Land Agent. Have
+            more questions?{" "}
             <Link href="/" className="text-primary underline font-medium">
               Contact
             </Link>{" "}
