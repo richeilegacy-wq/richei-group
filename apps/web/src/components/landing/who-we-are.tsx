@@ -10,28 +10,28 @@ const pillars = [
   {
     icon: Coins,
     label: "RichHei Assets:",
-    image: "/images/who-we-are/richei-assets.png",
+    image: "/images/who-we-are/coins.jpeg",
     description:
       "Fractional investment in prime Nigerian land and residential projects.",
   },
   {
     icon: Globe,
     label: "RichHei Academy:",
-    image: "/images/who-we-are/richei-academy.png",
+    image: "/images/who-we-are/meeting.jpeg",
     description:
       "Professional real estate and investment literacy for the next generation of agents.",
   },
   {
     icon: FileText,
     label: "RichHei Blog",
-    image: "/images/who-we-are/richei-blog.png",
+    image: "/images/who-we-are/chart.jpeg",
     description:
       "Your source for project transparency, market data, and behind-the-scenes updates.",
   },
   {
     icon: BarChart3,
     label: "Member Dashboard",
-    image: "/images/who-we-are/memeber-dashboard.png",
+    image: "/images/who-we-are/dashboard.jpeg",
     description:
       "Your private vault for documents, ROI tracking, and NFT certificates.",
   },

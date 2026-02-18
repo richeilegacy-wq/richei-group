@@ -202,7 +202,7 @@ const InvestorsDashboard = () => {
             <div className="flex-1 flex items-end">
               <div className="card-image w-full rounded-xl overflow-hidden shadow-lg">
                 <Image
-                  src="/images/investors-dashboard/my-projects.png"
+                  src="/images/investors-dashboard/land.jpeg"
                   alt="My Projects dashboard showing Enugu Residential Estate Phase 1 with progress tracker"
                   width={600}
                   height={340}
@@ -233,7 +233,7 @@ const InvestorsDashboard = () => {
             <div className="flex-1 flex items-end">
               <div className="card-image w-full rounded-xl overflow-hidden shadow-lg">
                 <Image
-                  src="/images/investors-dashboard/document-vault.png"
+                  src="/images/investors-dashboard/allocation_letter.jpeg"
                   alt="Document Vault showing Survey Plan and Digital Deed documents"
                   width={600}
                   height={340}
@@ -262,7 +262,7 @@ const InvestorsDashboard = () => {
 
           <div className="card-image w-full rounded-xl overflow-hidden shadow-lg">
             <Image
-              src="/images/investors-dashboard/investment-tracking.png"
+              src="/images/investors-dashboard/investment_tracking.jpeg"
               alt="Investment tracking showing Total Stake, Token Balance, Current Value and Total ROI"
               width={1200}
               height={300}
