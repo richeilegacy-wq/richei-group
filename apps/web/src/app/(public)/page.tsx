@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import PublicNav from "@/components/landing/public-nav";
@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 
 const page = () => {
   const heroRef = useRef<HTMLElement | null>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   const router = useRouter()
 
@@ -86,17 +87,28 @@ const page = () => {
 
   return (
     <>
-      <section className="w-full min-h-svh h-screen bg-primary p-4">
-        <div className="w-full h-full bg-primary-foreground rounded-lg py-8 px-4 md:px-16 flex flex-col overflow-hidden">
+      <section
+        className="relative w-full min-h-svh h-screen p-4 overflow-hidden"
+        style={{
+          backgroundImage: "url(/images/house.jpeg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <video
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isVideoLoaded ? "opacity-100" : "opacity-0"}`}
+          autoPlay
+          loop
+          muted
+          playsInline
+          onCanPlay={() => setIsVideoLoaded(true)}
+        >
+          <source src="/videos/housing.mp4" type="video/mp4" />
+        </video>
+        <div className="relative w-full h-full rounded-lg py-8 px-4 md:px-16 flex flex-col overflow-hidden">
           <PublicNav />
           <section
-            style={{
-              backgroundImage:
-                "url(/images/hero-grid-fill.png), url(/images/hero-grid-lines.png)",
-              backgroundSize: "contain, cover",
-              backgroundPosition: "center bottom, center",
-              backgroundRepeat: "no-repeat, no-repeat",
-            }}
             ref={heroRef}
             className="flex flex-col justify-between w-full max-w-3xl mx-auto flex-1 mt-10"
           >
@@ -123,12 +135,12 @@ const page = () => {
             </div>
             <div className="flex items-center justify-center relative w-full">
               <Card
-                className="hidden md:block max-w-sm w-full absolute -left-16 top-10 rounded-2xl shadow-xl border-none z-20"
+                className="hidden md:block max-w-sm w-full absolute -left-16 top-10 rounded-2xl shadow-xl border border-white/30 z-20 bg-white/30 backdrop-blur-lg"
                 data-hero-card
               >
                 <CardContent className="px-3">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 bg-white/25 rounded-full flex items-center justify-center shrink-0 backdrop-blur-sm">
                       <Image
                         src="/icons/house-icon.png"
                         alt="icon"
@@ -151,7 +163,7 @@ const page = () => {
                       </p>
                     </div>
 
-                    <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
+                    <div className="bg-white/35 rounded-xl p-4 flex justify-between items-center backdrop-blur-sm border border-white/30">
                       <div>
                         <p className="text-[10px] font-bold text-gray-500 mb-0.5">
                           Holdings:
@@ -171,12 +183,12 @@ const page = () => {
                 </CardContent>
               </Card>
               <Card
-                className="hidden md:block max-w-sm w-full absolute -right-16 bottom-10 rounded-2xl shadow-xl border-none z-20"
+                className="hidden md:block max-w-sm w-full absolute -right-16 bottom-10 rounded-2xl shadow-xl border border-white/30 z-20 bg-white/30 backdrop-blur-lg"
                 data-hero-card
               >
                 <CardContent className="px-2">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 bg-white/25 rounded-full flex items-center justify-center shrink-0 backdrop-blur-sm">
                       <Image
                         src="/icons/house-icon.png"
                         alt="icon"
@@ -199,7 +211,7 @@ const page = () => {
                         Site clearing <br /> 100% complete.
                       </p>
                     </div>
-                    <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
+                    <div className="bg-white/35 rounded-xl p-4 flex justify-between items-center backdrop-blur-sm border border-white/30">
                       <div>
                         <p className="text-[10px] font-bold text-gray-500 mb-0.5">
                           Holdings:
@@ -219,7 +231,7 @@ const page = () => {
                 </CardContent>
               </Card>
               <Image
-                src="/images/hero-image.png"
+                src="/images/palmhouse.jpeg"
                 alt="Hero Image"
                 width={500}
                 height={500}

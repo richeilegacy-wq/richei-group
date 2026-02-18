@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Route } from "next";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone, ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import {cn} from "@/lib/utils";
 
@@ -61,11 +61,11 @@ export default function PublicNav({ className }: { className?: string }) {
       <Image src="/images/logo.png" alt="Logo" width={75.72} height={41.7} />
 
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex gap-5">
-        <div className="flex items-center justify-center gap-5">
+      <nav className="hidden md:flex items-center rounded-full bg-[#fff] p-1.5 pl-6 gap-2 shadow-sm border border-border/5">
+        <div className="flex items-center justify-center gap-6 mr-4">
           {navLinks.map((link) => (
             <Link
-              className="text-lg font-medium hover:text-primary transition-colors"
+              className="text-base font-medium text-primary/80 hover:text-primary transition-colors"
               key={link.href}
               href={link.href}
             >
@@ -73,8 +73,18 @@ export default function PublicNav({ className }: { className?: string }) {
             </Link>
           ))}
         </div>
-        <Button className="text-lg rounded-full" size={"lg"}>
-          <Link href="/auth/sign-in">Get Started</Link>
+
+        <div className="flex items-center justify-center px-2">
+          <Phone className="w-5 h-5 text-primary/80 fill-current" />
+        </div>
+
+        <Button className="text-base rounded-full pl-5 pr-1.5 py-1.5 h-auto" size={"default"}>
+          <Link href="/auth/sign-in" className="flex items-center gap-3">
+            <span>Get Started</span>
+            <div className="w-8 h-8 rounded-full bg-[#ECF5E8] text-primary flex items-center justify-center">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
         </Button>
       </nav>
 
