@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "richei-group",
@@ -49,6 +48,7 @@
         "@richei-group/api": "workspace:*",
         "@richei-group/auth": "workspace:*",
         "@richei-group/env": "workspace:*",
+        "@richei-group/validators": "workspace:*",
         "@tanstack/react-form": "^1.27.3",
         "@tanstack/react-query": "^5.90.12",
         "babel-plugin-react-compiler": "^1.0.0",
@@ -90,6 +90,7 @@
         "@richei-group/auth": "workspace:*",
         "@richei-group/db": "workspace:*",
         "@richei-group/env": "workspace:*",
+        "@richei-group/validators": "workspace:*",
         "@types/pg": "catalog:",
         "dotenv": "catalog:",
         "zod": "catalog:",
@@ -146,6 +147,17 @@
       "devDependencies": {
         "@richei-group/config": "workspace:*",
         "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/validators": {
+      "name": "@richei-group/validators",
+      "version": "0.0.0",
+      "dependencies": {
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@richei-group/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
@@ -478,6 +490,8 @@
     "@richei-group/db": ["@richei-group/db@workspace:packages/db"],
 
     "@richei-group/env": ["@richei-group/env@workspace:packages/env"],
+
+    "@richei-group/validators": ["@richei-group/validators@workspace:packages/validators"],
 
     "@rolldown/binding-android-arm64": ["@rolldown/binding-android-arm64@1.0.0-beta.52", "", { "os": "android", "cpu": "arm64" }, "sha512-MBGIgysimZPqTDcLXI+i9VveijkP5C3EAncEogXhqfax6YXj1Tr2LY3DVuEOMIjWfMPMhtQSPup4fSTAmgjqIw=="],
 
