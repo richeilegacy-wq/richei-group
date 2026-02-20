@@ -17,6 +17,7 @@ COPY packages/env/package.json    ./packages/env/package.json
 COPY packages/db/package.json     ./packages/db/package.json
 COPY packages/auth/package.json   ./packages/auth/package.json
 COPY packages/api/package.json        ./packages/api/package.json
+COPY packages/uploader/package.json   ./packages/uploader/package.json
 COPY packages/validators/package.json ./packages/validators/package.json
 COPY apps/server/package.json     ./apps/server/package.json
 COPY apps/web/package.json        ./apps/web/package.json
