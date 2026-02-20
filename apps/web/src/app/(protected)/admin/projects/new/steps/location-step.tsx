@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import {
   Select,
   SelectTrigger,
@@ -14,10 +14,13 @@ import { useStore } from "@tanstack/react-store";
 import { orpc } from "@/utils/orpc";
 import { MapPin } from "lucide-react";
 import type { StepProps } from "./_types";
-import { INPUT_CLASS, SELECT_CLASS, LABEL_CLASS, getOptionLabel } from "./_types";
+import { inputClass, selectClass, LABEL_CLASS, getOptionLabel } from "./_types";
 
 const LocationStep = ({ form }: StepProps) => {
-  const selectedState = useStore(form.store, (s: any) => s.values.state) as string;
+  const selectedState = useStore(
+    form.store,
+    (s: any) => s.values.state,
+  ) as string;
 
   const statesQuery = useQuery(orpc.zones.getStates.queryOptions());
 
@@ -45,7 +48,8 @@ const LocationStep = ({ form }: StepProps) => {
           Project Location
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Where is the project located?
+          Where is the project located? All fields on this step are{" "}
+          <span className="font-medium">optional</span>.
         </p>
       </div>
 
@@ -53,7 +57,10 @@ const LocationStep = ({ form }: StepProps) => {
         {(field: any) => (
           <Field>
             <FieldLabel htmlFor={field.name} className={LABEL_CLASS}>
-              Address
+              Address{" "}
+              <span className="text-muted-foreground font-normal text-xs">
+                (optional)
+              </span>
             </FieldLabel>
             <Input
               id={field.name}
@@ -63,7 +70,7 @@ const LocationStep = ({ form }: StepProps) => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 field.handleChange(e.target.value)
               }
-              className={INPUT_CLASS}
+              className={inputClass(false)}
             />
           </Field>
         )}
@@ -73,7 +80,12 @@ const LocationStep = ({ form }: StepProps) => {
         <form.Field name="state">
           {(field: any) => (
             <Field>
-              <FieldLabel className={LABEL_CLASS}>State</FieldLabel>
+              <FieldLabel className={LABEL_CLASS}>
+                State{" "}
+                <span className="text-muted-foreground font-normal text-xs">
+                  (optional)
+                </span>
+              </FieldLabel>
               <Select
                 value={field.state.value || null}
                 onValueChange={(val: any) => {
@@ -81,7 +93,7 @@ const LocationStep = ({ form }: StepProps) => {
                   form.setFieldValue("city", "");
                 }}
               >
-                <SelectTrigger className={SELECT_CLASS}>
+                <SelectTrigger className={selectClass(false)}>
                   <SelectValue placeholder="Select state">
                     {getOptionLabel(stateOptions, field.state.value)}
                   </SelectValue>
@@ -102,14 +114,17 @@ const LocationStep = ({ form }: StepProps) => {
           {(field: any) => (
             <Field>
               <FieldLabel className={LABEL_CLASS}>
-                Local Government
+                Local Government{" "}
+                <span className="text-muted-foreground font-normal text-xs">
+                  (optional)
+                </span>
               </FieldLabel>
               <Select
                 value={field.state.value || null}
                 onValueChange={(val: any) => field.handleChange(val)}
                 disabled={!selectedState || lgasQuery.isLoading}
               >
-                <SelectTrigger className={SELECT_CLASS}>
+                <SelectTrigger className={selectClass(false)}>
                   <SelectValue
                     placeholder={
                       !selectedState
@@ -130,6 +145,11 @@ const LocationStep = ({ form }: StepProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              {!selectedState && (
+                <FieldDescription>
+                  Select a state first to see available LGAs.
+                </FieldDescription>
+              )}
             </Field>
           )}
         </form.Field>
@@ -149,9 +169,12 @@ const LocationStep = ({ form }: StepProps) => {
                 id={field.name}
                 value={field.state.value}
                 disabled
-                className={`${INPUT_CLASS} pl-10 bg-muted/50 cursor-not-allowed`}
+                className={`${inputClass(false)} pl-10 bg-muted/50 cursor-not-allowed`}
               />
             </div>
+            <FieldDescription>
+              Currently only Nigeria is supported.
+            </FieldDescription>
           </Field>
         )}
       </form.Field>
@@ -161,7 +184,10 @@ const LocationStep = ({ form }: StepProps) => {
           {(field: any) => (
             <Field>
               <FieldLabel htmlFor={field.name} className={LABEL_CLASS}>
-                Latitude
+                Latitude{" "}
+                <span className="text-muted-foreground font-normal text-xs">
+                  (optional)
+                </span>
               </FieldLabel>
               <Input
                 id={field.name}
@@ -171,7 +197,7 @@ const LocationStep = ({ form }: StepProps) => {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   field.handleChange(e.target.value)
                 }
-                className={INPUT_CLASS}
+                className={inputClass(false)}
               />
             </Field>
           )}
@@ -181,7 +207,10 @@ const LocationStep = ({ form }: StepProps) => {
           {(field: any) => (
             <Field>
               <FieldLabel htmlFor={field.name} className={LABEL_CLASS}>
-                Longitude
+                Longitude{" "}
+                <span className="text-muted-foreground font-normal text-xs">
+                  (optional)
+                </span>
               </FieldLabel>
               <Input
                 id={field.name}
@@ -191,7 +220,7 @@ const LocationStep = ({ form }: StepProps) => {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   field.handleChange(e.target.value)
                 }
-                className={INPUT_CLASS}
+                className={inputClass(false)}
               />
             </Field>
           )}

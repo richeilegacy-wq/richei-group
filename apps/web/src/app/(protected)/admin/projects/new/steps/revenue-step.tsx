@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,7 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import { useStore } from "@tanstack/react-store";
 import type { StepProps } from "./_types";
-import { INPUT_CLASS, SELECT_CLASS, LABEL_CLASS, getOptionLabel } from "./_types";
+import { inputClass, selectClass, LABEL_CLASS, getOptionLabel } from "./_types";
 
 const REVENUE_TYPES = [
   { value: "RESALE", label: "Resale" },
@@ -49,8 +49,14 @@ const FEE_TYPES = [
 ];
 
 const RevenueStep = ({ form }: StepProps) => {
-  const revenueStreams = useStore(form.store, (s: any) => s.values.revenueStreams) as any[];
-  const returnStructures = useStore(form.store, (s: any) => s.values.returnStructures) as any[];
+  const revenueStreams = useStore(
+    form.store,
+    (s: any) => s.values.revenueStreams,
+  ) as any[];
+  const returnStructures = useStore(
+    form.store,
+    (s: any) => s.values.returnStructures,
+  ) as any[];
   const fees = useStore(form.store, (s: any) => s.values.fees) as any[];
 
   return (
@@ -60,15 +66,22 @@ const RevenueStep = ({ form }: StepProps) => {
           Revenue, Returns & Fees
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          How investors make money and what fees apply
+          How investors make money and what fees apply. All sections below are{" "}
+          <span className="font-medium">optional</span>.
         </p>
       </div>
 
+      {/* ---- Revenue Streams ---- */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">
-            Revenue Streams
-          </h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Revenue Streams
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              How the project generates income.
+            </p>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -95,10 +108,7 @@ const RevenueStep = ({ form }: StepProps) => {
         )}
 
         {revenueStreams.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -113,12 +123,14 @@ const RevenueStep = ({ form }: StepProps) => {
               <form.Field name={`revenueStreams[${index}].type`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Type</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Type <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
                     >
-                      <SelectTrigger className={SELECT_CLASS}>
+                      <SelectTrigger className={selectClass(false)}>
                         <SelectValue placeholder="Select type">
                           {getOptionLabel(REVENUE_TYPES, field.state.value)}
                         </SelectValue>
@@ -139,7 +151,10 @@ const RevenueStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Expected Return Rate
+                      Expected Return Rate{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
                     </FieldLabel>
                     <Input
                       placeholder="e.g. 25"
@@ -147,7 +162,7 @@ const RevenueStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -157,14 +172,19 @@ const RevenueStep = ({ form }: StepProps) => {
             <form.Field name={`revenueStreams[${index}].description`}>
               {(field: any) => (
                 <Field>
-                  <FieldLabel className={LABEL_CLASS}>Description</FieldLabel>
+                  <FieldLabel className={LABEL_CLASS}>
+                    Description{" "}
+                    <span className="text-muted-foreground font-normal text-xs">
+                      (optional)
+                    </span>
+                  </FieldLabel>
                   <Input
                     placeholder="Describe this revenue stream"
                     value={field.state.value}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       field.handleChange(e.target.value)
                     }
-                    className={INPUT_CLASS}
+                    className={inputClass(false)}
                   />
                 </Field>
               )}
@@ -187,11 +207,17 @@ const RevenueStep = ({ form }: StepProps) => {
         ))}
       </div>
 
+      {/* ---- Return Structures ---- */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">
-            Return Structures
-          </h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Return Structures
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              How returns are distributed to investors.
+            </p>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -219,10 +245,7 @@ const RevenueStep = ({ form }: StepProps) => {
         )}
 
         {returnStructures.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -237,12 +260,14 @@ const RevenueStep = ({ form }: StepProps) => {
               <form.Field name={`returnStructures[${index}].type`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Type</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Type <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
                     >
-                      <SelectTrigger className={SELECT_CLASS}>
+                      <SelectTrigger className={selectClass(false)}>
                         <SelectValue placeholder="Select type">
                           {getOptionLabel(RETURN_TYPES, field.state.value)}
                         </SelectValue>
@@ -262,14 +287,19 @@ const RevenueStep = ({ form }: StepProps) => {
               <form.Field name={`returnStructures[${index}].rate`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Rate (%)</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Rate (%){" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <Input
                       placeholder="e.g. 15"
                       value={field.state.value}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -279,15 +309,19 @@ const RevenueStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Payout Frequency
+                      Payout Frequency{" "}
+                      <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
                     >
-                      <SelectTrigger className={SELECT_CLASS}>
+                      <SelectTrigger className={selectClass(false)}>
                         <SelectValue placeholder="Select frequency">
-                          {getOptionLabel(PAYOUT_FREQUENCIES, field.state.value)}
+                          {getOptionLabel(
+                            PAYOUT_FREQUENCIES,
+                            field.state.value,
+                          )}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -306,14 +340,19 @@ const RevenueStep = ({ form }: StepProps) => {
             <form.Field name={`returnStructures[${index}].description`}>
               {(field: any) => (
                 <Field>
-                  <FieldLabel className={LABEL_CLASS}>Description</FieldLabel>
+                  <FieldLabel className={LABEL_CLASS}>
+                    Description{" "}
+                    <span className="text-muted-foreground font-normal text-xs">
+                      (optional)
+                    </span>
+                  </FieldLabel>
                   <Input
                     placeholder="Describe this return structure"
                     value={field.state.value}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       field.handleChange(e.target.value)
                     }
-                    className={INPUT_CLASS}
+                    className={inputClass(false)}
                   />
                 </Field>
               )}
@@ -336,11 +375,17 @@ const RevenueStep = ({ form }: StepProps) => {
         ))}
       </div>
 
+      {/* ---- Fees ---- */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">
-            Platform Fees
-          </h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Platform Fees
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Fees charged to investors or on profits.
+            </p>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -367,10 +412,7 @@ const RevenueStep = ({ form }: StepProps) => {
         )}
 
         {fees.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -385,12 +427,14 @@ const RevenueStep = ({ form }: StepProps) => {
               <form.Field name={`fees[${index}].type`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Type</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Type <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
                     >
-                      <SelectTrigger className={SELECT_CLASS}>
+                      <SelectTrigger className={selectClass(false)}>
                         <SelectValue placeholder="Select fee type">
                           {getOptionLabel(FEE_TYPES, field.state.value)}
                         </SelectValue>
@@ -410,14 +454,19 @@ const RevenueStep = ({ form }: StepProps) => {
               <form.Field name={`fees[${index}].rate`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Rate (%)</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Rate (%){" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <Input
                       placeholder="e.g. 5"
                       value={field.state.value}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -427,7 +476,10 @@ const RevenueStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Fixed Amount
+                      Fixed Amount{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
                     </FieldLabel>
                     <Input
                       placeholder="e.g. 10000"
@@ -435,7 +487,7 @@ const RevenueStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -445,14 +497,19 @@ const RevenueStep = ({ form }: StepProps) => {
             <form.Field name={`fees[${index}].description`}>
               {(field: any) => (
                 <Field>
-                  <FieldLabel className={LABEL_CLASS}>Description</FieldLabel>
+                  <FieldLabel className={LABEL_CLASS}>
+                    Description{" "}
+                    <span className="text-muted-foreground font-normal text-xs">
+                      (optional)
+                    </span>
+                  </FieldLabel>
                   <Input
                     placeholder="Describe this fee"
                     value={field.state.value}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       field.handleChange(e.target.value)
                     }
-                    className={INPUT_CLASS}
+                    className={inputClass(false)}
                   />
                 </Field>
               )}

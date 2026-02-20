@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,12 @@ import { orpc } from "@/utils/orpc";
 import { toast } from "sonner";
 import { useStore } from "@tanstack/react-store";
 import type { StepProps } from "./_types";
-import { INPUT_CLASS, SELECT_CLASS, LABEL_CLASS, getOptionLabel } from "./_types";
+import {
+  INPUT_CLASS,
+  SELECT_CLASS,
+  LABEL_CLASS,
+  getOptionLabel,
+} from "./_types";
 
 const MEDIA_TYPES = [
   { value: "IMAGE", label: "Image" },
@@ -68,7 +73,9 @@ function MediaPreview({ url, type }: { url: string; type: string }) {
         className="w-full max-h-48 object-contain"
         onError={(e) => {
           (e.target as HTMLImageElement).style.display = "none";
-          (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+          (e.target as HTMLImageElement).nextElementSibling?.classList.remove(
+            "hidden",
+          );
         }}
       />
       <div className="hidden flex-col items-center justify-center py-8 text-muted-foreground">
@@ -84,7 +91,10 @@ const MediaStep = ({ form }: StepProps) => {
   const docInputRef = useRef<HTMLInputElement>(null);
 
   const mediaItems = useStore(form.store, (s: any) => s.values.media) as any[];
-  const documents = useStore(form.store, (s: any) => s.values.documents) as any[];
+  const documents = useStore(
+    form.store,
+    (s: any) => s.values.documents,
+  ) as any[];
 
   const uploadMutation = useMutation(
     orpc.project.uploadFile.mutationOptions({
@@ -94,9 +104,7 @@ const MediaStep = ({ form }: StepProps) => {
     }),
   );
 
-  const handleMediaUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
 
@@ -115,16 +123,14 @@ const MediaStep = ({ form }: StepProps) => {
           isCover: false,
         });
       } catch {
-        // handled by mutation onError
+        // TODO: add per-file error feedback (e.g. which file failed) instead of relying solely on mutation onError toast
       }
     }
 
     if (mediaInputRef.current) mediaInputRef.current.value = "";
   };
 
-  const handleDocUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
 
@@ -145,7 +151,7 @@ const MediaStep = ({ form }: StepProps) => {
           isPublic: false,
         });
       } catch {
-        // handled by mutation onError
+        // TODO: add per-file error feedback (e.g. which file failed) instead of relying solely on mutation onError toast
       }
     }
 
@@ -159,13 +165,21 @@ const MediaStep = ({ form }: StepProps) => {
           Media & Documents
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Upload images, videos, maps, and project documents
+          Upload images, videos, maps, and project documents. All sections are{" "}
+          <span className="font-medium">optional</span>.{" "}
+          <span className="text-destructive">*</span> marks required fields
+          within each item.
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Media</h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Media</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Images, videos, and maps for the project listing.
+            </p>
+          </div>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -218,10 +232,7 @@ const MediaStep = ({ form }: StepProps) => {
         )}
 
         {mediaItems.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -236,7 +247,9 @@ const MediaStep = ({ form }: StepProps) => {
               <form.Field name={`media[${index}].type`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Type</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Type <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
@@ -261,7 +274,9 @@ const MediaStep = ({ form }: StepProps) => {
               <form.Field name={`media[${index}].url`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>URL *</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      URL <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Input
                       placeholder="https://..."
                       value={field.state.value}
@@ -279,7 +294,10 @@ const MediaStep = ({ form }: StepProps) => {
               {(urlField: any) => (
                 <form.Field name={`media[${index}].type`}>
                   {(typeField: any) => (
-                    <MediaPreview url={urlField.state.value} type={typeField.state.value} />
+                    <MediaPreview
+                      url={urlField.state.value}
+                      type={typeField.state.value}
+                    />
                   )}
                 </form.Field>
               )}
@@ -289,7 +307,12 @@ const MediaStep = ({ form }: StepProps) => {
               <form.Field name={`media[${index}].altText`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Alt Text</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Alt Text{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <Input
                       placeholder="Describe the media"
                       value={field.state.value}
@@ -306,7 +329,10 @@ const MediaStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Sort Order
+                      Sort Order{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
                     </FieldLabel>
                     <Input
                       type="number"
@@ -345,7 +371,12 @@ const MediaStep = ({ form }: StepProps) => {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Documents</h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Documents</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Legal documents, surveys, and contracts.
+            </p>
+          </div>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -400,10 +431,7 @@ const MediaStep = ({ form }: StepProps) => {
         )}
 
         {documents.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -419,7 +447,7 @@ const MediaStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Document Type
+                      Document Type <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Select
                       value={field.state.value || null}
@@ -445,7 +473,9 @@ const MediaStep = ({ form }: StepProps) => {
               <form.Field name={`documents[${index}].name`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Name *</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Name <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Input
                       placeholder="Document name"
                       value={field.state.value}
@@ -462,7 +492,9 @@ const MediaStep = ({ form }: StepProps) => {
             <form.Field name={`documents[${index}].url`}>
               {(field: any) => (
                 <Field>
-                  <FieldLabel className={LABEL_CLASS}>URL *</FieldLabel>
+                  <FieldLabel className={LABEL_CLASS}>
+                    URL <span className="text-destructive">*</span>
+                  </FieldLabel>
                   <Input
                     placeholder="https://..."
                     value={field.state.value}
@@ -479,7 +511,12 @@ const MediaStep = ({ form }: StepProps) => {
               <form.Field name={`documents[${index}].signedBy`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Signed By</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Signed By{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <Input
                       placeholder="Name of signer"
                       value={field.state.value}
@@ -496,7 +533,10 @@ const MediaStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Verified By
+                      Verified By{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
                     </FieldLabel>
                     <Input
                       placeholder="Name of verifier"

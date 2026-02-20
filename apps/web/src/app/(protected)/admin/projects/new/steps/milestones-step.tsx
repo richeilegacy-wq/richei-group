@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,7 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import { useStore } from "@tanstack/react-store";
 import type { StepProps } from "./_types";
-import { INPUT_CLASS, SELECT_CLASS, LABEL_CLASS, getOptionLabel } from "./_types";
+import { inputClass, selectClass, LABEL_CLASS, getOptionLabel } from "./_types";
 
 const MILESTONE_STATUSES = [
   { value: "PENDING", label: "Pending" },
@@ -30,7 +30,10 @@ const TOKEN_TYPES = [
 ];
 
 const MilestonesStep = ({ form }: StepProps) => {
-  const milestones = useStore(form.store, (s: any) => s.values.milestones) as any[];
+  const milestones = useStore(
+    form.store,
+    (s: any) => s.values.milestones,
+  ) as any[];
   const tokens = useStore(form.store, (s: any) => s.values.tokens) as any[];
 
   return (
@@ -40,13 +43,24 @@ const MilestonesStep = ({ form }: StepProps) => {
           Milestones & Tokens
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Project timeline milestones and token configuration
+          Project timeline milestones and token configuration. All sections are{" "}
+          <span className="font-medium">optional</span>.{" "}
+          <span className="text-destructive">*</span> marks required fields
+          within each item.
         </p>
       </div>
 
+      {/* ---- Milestones ---- */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Milestones</h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">
+              Milestones
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Key phases or steps in the project timeline.
+            </p>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -74,10 +88,7 @@ const MilestonesStep = ({ form }: StepProps) => {
         )}
 
         {milestones.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -92,14 +103,16 @@ const MilestonesStep = ({ form }: StepProps) => {
               <form.Field name={`milestones[${index}].name`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Name *</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Name <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <Input
                       placeholder="e.g. Site Clearing"
                       value={field.state.value}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -108,14 +121,22 @@ const MilestonesStep = ({ form }: StepProps) => {
               <form.Field name={`milestones[${index}].status`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Status</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Status{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
                     >
-                      <SelectTrigger className={SELECT_CLASS}>
+                      <SelectTrigger className={selectClass(false)}>
                         <SelectValue placeholder="Select status">
-                          {getOptionLabel(MILESTONE_STATUSES, field.state.value)}
+                          {getOptionLabel(
+                            MILESTONE_STATUSES,
+                            field.state.value,
+                          )}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
@@ -136,7 +157,10 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Target Date
+                      Target Date{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
                     </FieldLabel>
                     <Input
                       type="date"
@@ -144,7 +168,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -154,7 +178,10 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Sort Order
+                      Sort Order{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
                     </FieldLabel>
                     <Input
                       type="number"
@@ -163,8 +190,11 @@ const MilestonesStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(Number(e.target.value))
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
+                    <FieldDescription>
+                      Controls display order. Lower numbers appear first.
+                    </FieldDescription>
                   </Field>
                 )}
               </form.Field>
@@ -173,14 +203,19 @@ const MilestonesStep = ({ form }: StepProps) => {
             <form.Field name={`milestones[${index}].description`}>
               {(field: any) => (
                 <Field>
-                  <FieldLabel className={LABEL_CLASS}>Description</FieldLabel>
+                  <FieldLabel className={LABEL_CLASS}>
+                    Description{" "}
+                    <span className="text-muted-foreground font-normal text-xs">
+                      (optional)
+                    </span>
+                  </FieldLabel>
                   <Input
                     placeholder="Describe this milestone"
                     value={field.state.value}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       field.handleChange(e.target.value)
                     }
-                    className={INPUT_CLASS}
+                    className={inputClass(false)}
                   />
                 </Field>
               )}
@@ -189,9 +224,15 @@ const MilestonesStep = ({ form }: StepProps) => {
         ))}
       </div>
 
+      {/* ---- Tokens ---- */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Tokens</h3>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Tokens</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Define investment tokens for this project.
+            </p>
+          </div>
           <Button
             type="button"
             variant="outline"
@@ -221,10 +262,7 @@ const MilestonesStep = ({ form }: StepProps) => {
         )}
 
         {tokens.map((_: any, index: number) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 space-y-4 relative"
-          >
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative">
             <Button
               type="button"
               variant="ghost"
@@ -240,13 +278,13 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Token Type
+                      Token Type <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Select
                       value={field.state.value || null}
                       onValueChange={(val: any) => field.handleChange(val)}
                     >
-                      <SelectTrigger className={SELECT_CLASS}>
+                      <SelectTrigger className={selectClass(false)}>
                         <SelectValue placeholder="Select token type">
                           {getOptionLabel(TOKEN_TYPES, field.state.value)}
                         </SelectValue>
@@ -267,7 +305,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Token Name *
+                      Token Name <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Input
                       placeholder="e.g. RHG-ENUGU-01"
@@ -275,7 +313,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -287,7 +325,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Total Supply
+                      Total Supply <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Input
                       placeholder="e.g. 100000"
@@ -295,7 +333,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -305,7 +343,8 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Available Supply
+                      Available Supply{" "}
+                      <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Input
                       placeholder="e.g. 100000"
@@ -313,7 +352,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -323,7 +362,8 @@ const MilestonesStep = ({ form }: StepProps) => {
                 {(field: any) => (
                   <Field>
                     <FieldLabel className={LABEL_CLASS}>
-                      Price per Token
+                      Price per Token{" "}
+                      <span className="text-destructive">*</span>
                     </FieldLabel>
                     <Input
                       placeholder="e.g. 500"
@@ -331,7 +371,7 @@ const MilestonesStep = ({ form }: StepProps) => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
                   </Field>
                 )}
@@ -342,15 +382,21 @@ const MilestonesStep = ({ form }: StepProps) => {
               <form.Field name={`tokens[${index}].currency`}>
                 {(field: any) => (
                   <Field>
-                    <FieldLabel className={LABEL_CLASS}>Currency</FieldLabel>
+                    <FieldLabel className={LABEL_CLASS}>
+                      Currency{" "}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <Input
                       placeholder="NGN"
                       value={field.state.value}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.handleChange(e.target.value)
                       }
-                      className={INPUT_CLASS}
+                      className={inputClass(false)}
                     />
+                    <FieldDescription>Defaults to NGN.</FieldDescription>
                   </Field>
                 )}
               </form.Field>
@@ -366,9 +412,14 @@ const MilestonesStep = ({ form }: StepProps) => {
                           field.handleChange(checked)
                         }
                       />
-                      <span className="text-sm text-foreground">
-                        Tradeable
-                      </span>
+                      <div>
+                        <span className="text-sm text-foreground">
+                          Tradeable
+                        </span>
+                        <p className="text-xs text-muted-foreground">
+                          Can be traded on secondary market.
+                        </p>
+                      </div>
                     </label>
                   </Field>
                 )}

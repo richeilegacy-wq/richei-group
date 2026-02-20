@@ -87,11 +87,24 @@ export const tokenSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
-export const createProjectSchema = z.object({
-  name: z.string().min(1),
+// --- Helpers for cross-field validation ---
+
+const numericString = z
+  .string()
+  .regex(/^\d+(\.\d+)?$/, "Must be a valid number");
+
+const positiveNumericString = z
+  .string()
+  .regex(/^\d+(\.\d+)?$/, "Must be a valid number")
+  .refine((val) => parseFloat(val) > 0, "Must be greater than 0");
+
+// --- Main schema ---
+
+const _createProjectBaseSchema = z.object({
+  name: z.string().min(1, "Project name is required"),
   slug: z
     .string()
-    .min(1)
+    .min(1, "Slug is required")
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Slug must be lowercase alphanumeric with hyphens",
@@ -120,9 +133,9 @@ export const createProjectSchema = z.object({
   longitude: z.string().optional(),
 
   currency: z.string().default("NGN"),
-  targetAmount: z.string(),
-  minInvestment: z.string().optional(),
-  maxInvestment: z.string().optional(),
+  targetAmount: positiveNumericString,
+  minInvestment: numericString.optional().or(z.literal("")),
+  maxInvestment: numericString.optional().or(z.literal("")),
 
   fundingDeadline: z.coerce.date().optional(),
   underfundingPolicy: z
@@ -135,7 +148,7 @@ export const createProjectSchema = z.object({
   riskLevel: z.string().optional(),
   earlyExitAllowed: z.boolean().default(false),
   earlyExitPenaltyRate: z.string().optional(),
-  earlyExitNoticeDays: z.number().int().optional(),
+  earlyExitNoticeDays: z.number().int().min(0).optional(),
   secondaryMarketEnabled: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
 
@@ -148,7 +161,107 @@ export const createProjectSchema = z.object({
   tokens: z.array(tokenSchema).optional(),
 });
 
-export const updateProjectSchema = createProjectSchema
+/** Cross-field refinement applied to both create and update schemas */
+function projectRefinement(data: z.infer<typeof _createProjectBaseSchema>, ctx: z.RefinementCtx) {
+  const minVal = data.minInvestment
+    ? parseFloat(data.minInvestment)
+    : undefined;
+  const maxVal = data.maxInvestment
+    ? parseFloat(data.maxInvestment)
+    : undefined;
+  const targetVal = parseFloat(data.targetAmount);
+
+  // minInvestment must not be greater than maxInvestment
+  if (minVal != null && maxVal != null && minVal > maxVal) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["minInvestment"],
+      message:
+        "Minimum investment cannot be greater than maximum investment",
+    });
+  }
+
+  // maxInvestment must not exceed targetAmount
+  if (maxVal != null && !isNaN(targetVal) && maxVal > targetVal) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["maxInvestment"],
+      message: "Maximum investment cannot exceed the target amount",
+    });
+  }
+
+  // minInvestment must not exceed targetAmount
+  if (minVal != null && !isNaN(targetVal) && minVal > targetVal) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["minInvestment"],
+      message: "Minimum investment cannot exceed the target amount",
+    });
+  }
+
+  // startDate must be before endDate
+  if (data.startDate && data.endDate && data.startDate >= data.endDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["endDate"],
+      message: "End date must be after start date",
+    });
+  }
+
+  // endDate must be before exitDate
+  if (data.endDate && data.exitDate && data.endDate >= data.exitDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["exitDate"],
+      message: "Exit date must be after end date",
+    });
+  }
+
+  // startDate must be after or equal to exitDate (if both provided without endDate)
+  if (
+    data.startDate &&
+    data.exitDate &&
+    !data.endDate &&
+    data.startDate >= data.exitDate
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["exitDate"],
+      message: "Exit date must be after start date",
+    });
+  }
+
+  // fundingDeadline should be before or equal to startDate
+  if (
+    data.fundingDeadline &&
+    data.startDate &&
+    data.fundingDeadline > data.startDate
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["fundingDeadline"],
+      message: "Funding deadline should be on or before the start date",
+    });
+  }
+
+  // earlyExitPenaltyRate must be a valid percentage when provided
+  if (data.earlyExitAllowed && data.earlyExitPenaltyRate) {
+    const rate = parseFloat(data.earlyExitPenaltyRate);
+    if (isNaN(rate) || rate < 0 || rate > 100) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["earlyExitPenaltyRate"],
+        message: "Penalty rate must be between 0 and 100",
+      });
+    }
+  }
+}
+
+// createProjectSchema = base + refinements
+export const createProjectSchema = _createProjectBaseSchema.superRefine(projectRefinement);
+
+// updateProjectSchema = base (without slug) + partial + id, then refinements
+export const updateProjectSchema = _createProjectBaseSchema
   .omit({ slug: true })
   .partial()
   .extend({ id: z.string() });

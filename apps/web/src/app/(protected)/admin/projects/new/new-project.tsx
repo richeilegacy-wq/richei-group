@@ -5,11 +5,24 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import {
+  Check,
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createProjectSchema } from "@richei-group/validators";
 import { orpc } from "@/utils/orpc";
 import { cn } from "@/lib/utils";
+import {
+  validateMinMaxInvestment,
+  validateDateOrder,
+  validatePositiveNumericString,
+  validateSlug,
+  validatePenaltyRate,
+} from "./steps/_types";
 import type {
   ProjectFormValues,
   RevenueStreamValue,
@@ -108,6 +121,7 @@ function cleanFormData(values: ProjectFormValues) {
 const NewProject = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
+  const [stepErrors, setStepErrors] = useState<Record<number, string[]>>({});
 
   const createMutation = useMutation(
     orpc.project.create.mutationOptions({
@@ -172,36 +186,99 @@ const NewProject = () => {
     },
   });
 
-  const validateStep = (step: number): boolean => {
+  /**
+   * Stricter step validation that returns an array of error messages.
+   * Empty array = step is valid.
+   */
+  const validateStep = (step: number): string[] => {
     const values = form.state.values;
+    const errors: string[] = [];
+
     switch (step) {
-      case 0:
-        if (!values.name) {
-          toast.error("Project name is required");
-          return false;
+      case 0: {
+        // Overview
+        if (!values.name || !values.name.trim()) {
+          errors.push("Project name is required");
+        } else if (values.name.length < 3) {
+          errors.push("Project name must be at least 3 characters");
         }
-        if (!values.slug) {
-          toast.error("Slug is required");
-          return false;
+        if (!values.slug || !values.slug.trim()) {
+          errors.push("URL slug is required");
+        } else {
+          const slugErr = validateSlug(values.slug);
+          if (slugErr) errors.push(`Slug: ${slugErr}`);
         }
         if (!values.type) {
-          toast.error("Project type is required");
-          return false;
+          errors.push("Project type is required");
         }
-        return true;
-      case 2:
+        break;
+      }
+      case 1: {
+        // Location — all optional, no blocking validation
+        break;
+      }
+      case 2: {
+        // Investment & Timeline
         if (!values.targetAmount) {
-          toast.error("Target amount is required");
-          return false;
+          errors.push("Target amount is required");
+        } else {
+          const amtErr = validatePositiveNumericString(values.targetAmount);
+          if (amtErr) errors.push(`Target amount: ${amtErr}`);
         }
-        return true;
+
+        // Cross-field: min/max investment
+        const invErrors = validateMinMaxInvestment(
+          values.minInvestment,
+          values.maxInvestment,
+          values.targetAmount,
+        );
+        if (invErrors.minError) errors.push(invErrors.minError);
+        if (invErrors.maxError) errors.push(invErrors.maxError);
+
+        // Cross-field: date ordering
+        const dateErrors = validateDateOrder(
+          values.startDate,
+          values.endDate,
+          values.exitDate,
+          values.fundingDeadline,
+        );
+        if (dateErrors.startError) errors.push(dateErrors.startError);
+        if (dateErrors.endError)
+          errors.push(`End date: ${dateErrors.endError}`);
+        if (dateErrors.exitError)
+          errors.push(`Exit date: ${dateErrors.exitError}`);
+        if (dateErrors.fundingError)
+          errors.push(`Funding deadline: ${dateErrors.fundingError}`);
+
+        // Penalty rate
+        if (values.earlyExitAllowed && values.earlyExitPenaltyRate) {
+          const penErr = validatePenaltyRate(values.earlyExitPenaltyRate);
+          if (penErr) errors.push(`Penalty rate: ${penErr}`);
+        }
+        break;
+      }
+      // Steps 3-5 have optional content, no blocking validation
       default:
-        return true;
+        break;
     }
+
+    return errors;
   };
 
   const handleNext = () => {
-    if (!validateStep(currentStep)) return;
+    const errors = validateStep(currentStep);
+    if (errors.length > 0) {
+      setStepErrors((prev) => ({ ...prev, [currentStep]: errors }));
+      // Show the first error as a toast for quick visibility
+      toast.error(errors[0]);
+      return;
+    }
+    // Clear errors for this step on success
+    setStepErrors((prev) => {
+      const next = { ...prev };
+      delete next[currentStep];
+      return next;
+    });
     setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
   };
 
@@ -210,6 +287,21 @@ const NewProject = () => {
   };
 
   const handleGoToStep = (step: number) => {
+    // Only allow going back or to already-visited steps
+    if (step < currentStep) {
+      setCurrentStep(step);
+      return;
+    }
+    // Going forward: validate all intermediate steps
+    for (let i = currentStep; i < step; i++) {
+      const errors = validateStep(i);
+      if (errors.length > 0) {
+        setStepErrors((prev) => ({ ...prev, [i]: errors }));
+        toast.error(`Step "${STEPS[i].label}" has issues: ${errors[0]}`);
+        setCurrentStep(i);
+        return;
+      }
+    }
     setCurrentStep(step);
   };
 
@@ -233,6 +325,8 @@ const NewProject = () => {
         return null;
     }
   };
+
+  const currentStepErrors = stepErrors[currentStep] ?? [];
 
   return (
     <div className="px-4 lg:px-8 py-6 max-w-4xl mx-auto">
@@ -261,14 +355,22 @@ const NewProject = () => {
                 className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all",
                   index < currentStep &&
+                    !stepErrors[index]?.length &&
                     "bg-primary border-primary text-primary-foreground",
+                  index < currentStep &&
+                    !!stepErrors[index]?.length &&
+                    "bg-amber-500 border-amber-500 text-white",
                   index === currentStep &&
                     "bg-primary border-primary text-primary-foreground",
                   index > currentStep && "border-gray-300 text-gray-400",
                 )}
               >
                 {index < currentStep ? (
-                  <Check className="w-4 h-4" />
+                  stepErrors[index]?.length ? (
+                    <AlertCircle className="w-4 h-4" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )
                 ) : (
                   index + 1
                 )}
@@ -322,6 +424,25 @@ const NewProject = () => {
           form.handleSubmit();
         }}
       >
+        {/* Step-level error summary */}
+        {currentStepErrors.length > 0 && (
+          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-destructive">
+                  Please fix the following issues:
+                </p>
+                <ul className="mt-1 list-disc list-inside text-xs text-destructive/80 space-y-0.5">
+                  {currentStepErrors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-card ring-foreground/10 ring-1 rounded-lg p-6 lg:p-8 min-h-[400px]">
           {renderStep()}
         </div>
