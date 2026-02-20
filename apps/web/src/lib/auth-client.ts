@@ -1,6 +1,18 @@
 import { env } from "@richei-group/env/web";
 import { createAuthClient } from "better-auth/react";
+import { inferAdditionalFields } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   baseURL: env.NEXT_PUBLIC_SERVER_URL,
+  plugins: [
+    inferAdditionalFields({
+      user: {
+        role: {
+          type: "string",
+          enum: ["ADMIN", "USER"],
+          defaultValue: "USER",
+        },
+      },
+    }),
+  ],
 });

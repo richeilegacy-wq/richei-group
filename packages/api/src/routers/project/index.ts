@@ -24,6 +24,7 @@ import {
   mediaSchema,
   tokenSchema,
 } from "@richei-group/validators";
+import { uploadFile } from "@richei-group/uploader";
 
 import { adminProcedure, protectedProcedure, publicProcedure } from "../..";
 
@@ -32,6 +33,19 @@ function generateId() {
 }
 
 export const projectRouter = {
+  uploadFile: adminProcedure
+    .input(
+      z.object({
+        file: z.instanceof(File),
+        type: z.enum(["IMAGE", "VIDEO", "DOCUMENT"]),
+        folder: z.string().optional(),
+      }),
+    )
+    .handler(async ({ input }) => {
+      const { file, type, folder } = input;
+      const result = await uploadFile(file, type, folder);
+      return result;
+    }),
   create: adminProcedure
     .input(createProjectSchema)
     .handler(async ({ input, context }) => {
