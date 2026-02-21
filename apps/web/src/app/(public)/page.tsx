@@ -12,6 +12,7 @@ import WhoWeAre from "@/components/landing/who-we-are";
 import InvestorsDashboard from "@/components/landing/investors-dashboard";
 import HowItWorks from "@/components/landing/how-it-works";
 import FAQ from "@/components/landing/faq";
+import ContactSection from "@/components/landing/contact-section";
 import CTASection from "@/components/landing/cta-section";
 import PublicFooter from "@/components/landing/public-footer";
 import { useRouter } from "next/navigation";
@@ -246,6 +247,7 @@ const page = () => {
       <InvestorsDashboard />
       <HowItWorks />
       <FAQ />
+      <ContactSection />
       <CTASection />
       <PublicFooter />
     </>
