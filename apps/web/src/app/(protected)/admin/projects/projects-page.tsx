@@ -139,7 +139,7 @@ export default function ProjectsPage() {
   const hasActiveFilters = typeFilter !== null || statusFilter !== null;
 
   const { data, isLoading, error, refetch } = useQuery(
-    orpc.project.getAll.queryOptions({
+    orpc.project.admin.getAll.queryOptions({
       input: {
         ...(typeFilter ? { type: typeFilter } : {}),
         ...(statusFilter ? { status: statusFilter } : {}),

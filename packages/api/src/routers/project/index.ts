@@ -57,299 +57,302 @@ const sortColumnMap = {
 } as const;
 
 export const projectRouter = {
-  uploadFile: adminProcedure
-    .input(
-      z.object({
-        file: z.instanceof(File),
-        type: z.enum(["IMAGE", "VIDEO", "DOCUMENT"]),
-        folder: z.string().optional(),
+  admin: {
+    uploadFile: adminProcedure
+      .input(
+        z.object({
+          file: z.instanceof(File),
+          type: z.enum(["IMAGE", "VIDEO", "DOCUMENT"]),
+          folder: z.string().optional(),
+        }),
+      )
+      .handler(async ({ input }) => {
+        const { file, type, folder } = input;
+        const result = await uploadFile(file, type, folder);
+        return result;
       }),
-    )
-    .handler(async ({ input }) => {
-      const { file, type, folder } = input;
-      const result = await uploadFile(file, type, folder);
-      return result;
-    }),
-  create: adminProcedure
-    .input(createProjectSchema)
-    .handler(async ({ input, context }) => {
-      const {
-        revenueStreams,
-        returnStructures,
-        fees,
-        milestones,
-        documents,
-        media,
-        tokens,
-        slug,
-        ...projectData
-      } = input;
+    create: adminProcedure
+      .input(createProjectSchema)
+      .handler(async ({ input, context }) => {
+        const {
+          revenueStreams,
+          returnStructures,
+          fees,
+          milestones,
+          documents,
+          media,
+          tokens,
+          slug,
+          ...projectData
+        } = input;
 
-      const existing = await db
-        .select({ id: project.id })
-        .from(project)
-        .where(eq(project.slug, slug))
-        .limit(1);
+        const existing = await db
+          .select({ id: project.id })
+          .from(project)
+          .where(eq(project.slug, slug))
+          .limit(1);
 
-      if (existing.length > 0) {
-        throw new ORPCError("CONFLICT", {
-          message: "A project with this slug already exists",
+        if (existing.length > 0) {
+          throw new ORPCError("CONFLICT", {
+            message: "A project with this slug already exists",
+          });
+        }
+
+        const projectId = generateId();
+
+        const result = await db.transaction(async (tx) => {
+          const [created] = await tx
+            .insert(project)
+            .values({
+              id: projectId,
+              slug,
+              ...projectData,
+              createdBy: context.session.user.id,
+            })
+            .returning();
+
+          if (revenueStreams?.length) {
+            await tx.insert(projectRevenueStream).values(
+              revenueStreams.map((rs) => ({
+                id: generateId(),
+                projectId,
+                ...rs,
+              })),
+            );
+          }
+
+          if (returnStructures?.length) {
+            await tx.insert(projectReturnStructure).values(
+              returnStructures.map((rs) => ({
+                id: generateId(),
+                projectId,
+                ...rs,
+              })),
+            );
+          }
+
+          if (fees?.length) {
+            await tx.insert(projectFee).values(
+              fees.map((f) => ({
+                id: generateId(),
+                projectId,
+                ...f,
+              })),
+            );
+          }
+
+          if (milestones?.length) {
+            await tx.insert(projectMilestone).values(
+              milestones.map((m) => ({
+                id: generateId(),
+                projectId,
+                ...m,
+              })),
+            );
+          }
+
+          if (documents?.length) {
+            await tx.insert(projectDocument).values(
+              documents.map((d) => ({
+                id: generateId(),
+                projectId,
+                ...d,
+              })),
+            );
+          }
+
+          if (media?.length) {
+            await tx.insert(projectMedia).values(
+              media.map((m) => ({
+                id: generateId(),
+                projectId,
+                ...m,
+              })),
+            );
+          }
+
+          if (tokens?.length) {
+            await tx.insert(projectToken).values(
+              tokens.map((t) => ({
+                id: generateId(),
+                projectId,
+                ...t,
+              })),
+            );
+          }
+
+          return created;
         });
-      }
 
-      const projectId = generateId();
+        return result;
+      }),
 
-      const result = await db.transaction(async (tx) => {
-        const [created] = await tx
-          .insert(project)
-          .values({
-            id: projectId,
-            slug,
-            ...projectData,
-            createdBy: context.session.user.id,
-          })
-          .returning();
-
-        if (revenueStreams?.length) {
-          await tx.insert(projectRevenueStream).values(
-            revenueStreams.map((rs) => ({
-              id: generateId(),
-              projectId,
-              ...rs,
-            })),
-          );
-        }
-
-        if (returnStructures?.length) {
-          await tx.insert(projectReturnStructure).values(
-            returnStructures.map((rs) => ({
-              id: generateId(),
-              projectId,
-              ...rs,
-            })),
-          );
-        }
-
-        if (fees?.length) {
-          await tx.insert(projectFee).values(
-            fees.map((f) => ({
-              id: generateId(),
-              projectId,
-              ...f,
-            })),
-          );
-        }
-
-        if (milestones?.length) {
-          await tx.insert(projectMilestone).values(
-            milestones.map((m) => ({
-              id: generateId(),
-              projectId,
-              ...m,
-            })),
-          );
-        }
-
-        if (documents?.length) {
-          await tx.insert(projectDocument).values(
-            documents.map((d) => ({
-              id: generateId(),
-              projectId,
-              ...d,
-            })),
-          );
-        }
-
-        if (media?.length) {
-          await tx.insert(projectMedia).values(
-            media.map((m) => ({
-              id: generateId(),
-              projectId,
-              ...m,
-            })),
-          );
-        }
-
-        if (tokens?.length) {
-          await tx.insert(projectToken).values(
-            tokens.map((t) => ({
-              id: generateId(),
-              projectId,
-              ...t,
-            })),
-          );
-        }
-
-        return created;
-      });
-
-      return result;
-    }),
-
-  getAll: adminProcedure
-    .input(adminProjectFilterSchema)
-    .handler(async ({ input }) => {
-      const {
-        type,
-        status,
-        ownershipType,
-        isFeatured,
-        earlyExitAllowed,
-        secondaryMarketEnabled,
-        city,
-        state,
-        country,
-        createdAfter,
-        createdBefore,
-        minTargetAmount,
-        maxTargetAmount,
-        sortBy,
-        sortOrder,
-        page,
-        limit,
-      } = input;
-
-      // Build WHERE conditions
-      const conditions: SQL[] = [];
-
-      // Enum filters
-      if (type) conditions.push(eq(project.type, type));
-      if (status) conditions.push(eq(project.status, status));
-      if (ownershipType)
-        conditions.push(eq(project.ownershipType, ownershipType));
-
-      // Boolean filters
-      if (isFeatured !== undefined)
-        conditions.push(eq(project.isFeatured, isFeatured));
-      if (earlyExitAllowed !== undefined)
-        conditions.push(eq(project.earlyExitAllowed, earlyExitAllowed));
-      if (secondaryMarketEnabled !== undefined)
-        conditions.push(
-          eq(project.secondaryMarketEnabled, secondaryMarketEnabled),
-        );
-
-      // Location filters (case-insensitive partial match)
-      if (city) conditions.push(ilike(project.city, `%${city}%`));
-      if (state) conditions.push(ilike(project.state, `%${state}%`));
-      if (country) conditions.push(ilike(project.country, `%${country}%`));
-
-      // Date range filters
-      if (createdAfter) conditions.push(gte(project.createdAt, createdAfter));
-      if (createdBefore) conditions.push(lte(project.createdAt, createdBefore));
-
-      // Funding range filters
-      if (minTargetAmount)
-        conditions.push(gte(project.targetAmount, minTargetAmount));
-      if (maxTargetAmount)
-        conditions.push(lte(project.targetAmount, maxTargetAmount));
-
-      const whereClause =
-        conditions.length > 0 ? and(...conditions) : undefined;
-
-      // Sorting
-      const sortColumn = sortColumnMap[sortBy];
-      const orderFn = sortOrder === "asc" ? asc : desc;
-
-      // Calculate offset from page
-      const offset = (page - 1) * limit;
-
-      // Run data + count queries in parallel
-      const [items, countResult] = await Promise.all([
-        db
-          .select()
-          .from(project)
-          .where(whereClause)
-          .orderBy(orderFn(sortColumn))
-          .limit(limit)
-          .offset(offset),
-        db.select({ total: count() }).from(project).where(whereClause),
-      ]);
-
-      const total = countResult[0]?.total ?? 0;
-      const totalPages = Math.ceil(total / limit);
-
-      return {
-        items,
-        pagination: {
+    getAll: adminProcedure
+      .input(adminProjectFilterSchema)
+      .handler(async ({ input }) => {
+        const {
+          type,
+          status,
+          ownershipType,
+          isFeatured,
+          earlyExitAllowed,
+          secondaryMarketEnabled,
+          city,
+          state,
+          country,
+          createdAfter,
+          createdBefore,
+          minTargetAmount,
+          maxTargetAmount,
+          sortBy,
+          sortOrder,
           page,
           limit,
-          total,
-          totalPages,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1,
-        },
-      };
-    }),
+        } = input;
 
-  search: adminProcedure
-    .input(adminProjectSearchSchema)
-    .handler(async ({ input }) => {
-      const { query, type, status, page, limit } = input;
+        // Build WHERE conditions
+        const conditions: SQL[] = [];
 
-      const pattern = `%${query}%`;
+        // Enum filters
+        if (type) conditions.push(eq(project.type, type));
+        if (status) conditions.push(eq(project.status, status));
+        if (ownershipType)
+          conditions.push(eq(project.ownershipType, ownershipType));
 
-      // Build WHERE conditions — text search is always applied
-      const conditions: SQL[] = [
-        or(
-          ilike(project.name, pattern),
-          ilike(project.slug, pattern),
-          ilike(project.description, pattern),
-        )!,
-      ];
+        // Boolean filters
+        if (isFeatured !== undefined)
+          conditions.push(eq(project.isFeatured, isFeatured));
+        if (earlyExitAllowed !== undefined)
+          conditions.push(eq(project.earlyExitAllowed, earlyExitAllowed));
+        if (secondaryMarketEnabled !== undefined)
+          conditions.push(
+            eq(project.secondaryMarketEnabled, secondaryMarketEnabled),
+          );
 
-      // Optional narrowing filters
-      if (type) conditions.push(eq(project.type, type));
-      if (status) conditions.push(eq(project.status, status));
+        // Location filters (case-insensitive partial match)
+        if (city) conditions.push(ilike(project.city, `%${city}%`));
+        if (state) conditions.push(ilike(project.state, `%${state}%`));
+        if (country) conditions.push(ilike(project.country, `%${country}%`));
 
-      const whereClause = and(...conditions);
-      const offset = (page - 1) * limit;
+        // Date range filters
+        if (createdAfter) conditions.push(gte(project.createdAt, createdAfter));
+        if (createdBefore)
+          conditions.push(lte(project.createdAt, createdBefore));
 
-      const [items, countResult] = await Promise.all([
-        db
-          .select({
-            id: project.id,
-            name: project.name,
-            slug: project.slug,
-            type: project.type,
-            status: project.status,
-            targetAmount: project.targetAmount,
-            raisedAmount: project.raisedAmount,
-            city: project.city,
-            state: project.state,
-            isFeatured: project.isFeatured,
-            createdAt: project.createdAt,
-          })
-          .from(project)
-          .where(whereClause)
-          .orderBy(desc(project.createdAt))
-          .limit(limit)
-          .offset(offset),
-        db.select({ total: count() }).from(project).where(whereClause),
-      ]);
+        // Funding range filters
+        if (minTargetAmount)
+          conditions.push(gte(project.targetAmount, minTargetAmount));
+        if (maxTargetAmount)
+          conditions.push(lte(project.targetAmount, maxTargetAmount));
 
-      const total = countResult[0]?.total ?? 0;
-      const totalPages = Math.ceil(total / limit);
+        const whereClause =
+          conditions.length > 0 ? and(...conditions) : undefined;
 
-      return {
-        items,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1,
-        },
-      };
-    }),
+        // Sorting
+        const sortColumn = sortColumnMap[sortBy];
+        const orderFn = sortOrder === "asc" ? asc : desc;
 
-  update: adminProcedure
-    .input(updateProjectSchema)
-    .handler(async ({ input }) => {}),
+        // Calculate offset from page
+        const offset = (page - 1) * limit;
 
-  delete: adminProcedure
-    .input(z.object({ id: z.string() }))
-    .handler(async ({ input }) => {}),
+        // Run data + count queries in parallel
+        const [items, countResult] = await Promise.all([
+          db
+            .select()
+            .from(project)
+            .where(whereClause)
+            .orderBy(orderFn(sortColumn))
+            .limit(limit)
+            .offset(offset),
+          db.select({ total: count() }).from(project).where(whereClause),
+        ]);
+
+        const total = countResult[0]?.total ?? 0;
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+          items,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+          },
+        };
+      }),
+
+    search: adminProcedure
+      .input(adminProjectSearchSchema)
+      .handler(async ({ input }) => {
+        const { query, type, status, page, limit } = input;
+
+        const pattern = `%${query}%`;
+
+        // Build WHERE conditions — text search is always applied
+        const conditions: SQL[] = [
+          or(
+            ilike(project.name, pattern),
+            ilike(project.slug, pattern),
+            ilike(project.description, pattern),
+          )!,
+        ];
+
+        // Optional narrowing filters
+        if (type) conditions.push(eq(project.type, type));
+        if (status) conditions.push(eq(project.status, status));
+
+        const whereClause = and(...conditions);
+        const offset = (page - 1) * limit;
+
+        const [items, countResult] = await Promise.all([
+          db
+            .select({
+              id: project.id,
+              name: project.name,
+              slug: project.slug,
+              type: project.type,
+              status: project.status,
+              targetAmount: project.targetAmount,
+              raisedAmount: project.raisedAmount,
+              city: project.city,
+              state: project.state,
+              isFeatured: project.isFeatured,
+              createdAt: project.createdAt,
+            })
+            .from(project)
+            .where(whereClause)
+            .orderBy(desc(project.createdAt))
+            .limit(limit)
+            .offset(offset),
+          db.select({ total: count() }).from(project).where(whereClause),
+        ]);
+
+        const total = countResult[0]?.total ?? 0;
+        const totalPages = Math.ceil(total / limit);
+
+        return {
+          items,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+          },
+        };
+      }),
+
+    update: adminProcedure
+      .input(updateProjectSchema)
+      .handler(async ({ input }) => {}),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.string() }))
+      .handler(async ({ input }) => {}),
+  },
 
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))

@@ -124,7 +124,7 @@ const NewProject = () => {
   const [stepErrors, setStepErrors] = useState<Record<number, string[]>>({});
 
   const createMutation = useMutation(
-    orpc.project.create.mutationOptions({
+    orpc.project.admin.create.mutationOptions({
       onSuccess: () => {
         toast.success("Project created successfully");
         router.push("/admin/projects");
