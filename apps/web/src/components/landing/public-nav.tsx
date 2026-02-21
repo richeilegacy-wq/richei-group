@@ -13,10 +13,15 @@ const navLinks: { href: Route; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/about" as Route, label: "About" },
   { href: "/#faq" as Route, label: "FAQ" },
-  { href: "/contact" as Route, label: "Contact us" },
+  { href: "/#contact" as Route, label: "Contact us" },
 ];
 
-export default function PublicNav({ className }: { className?: string }) {
+type PublicNavProps = {
+  className?: string;
+  logoVariant?: "default" | "white";
+};
+
+export default function PublicNav({ className, logoVariant = "default" }: PublicNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
@@ -58,7 +63,12 @@ export default function PublicNav({ className }: { className?: string }) {
 
   return (
     <header className={cn("md:px-8 w-full flex items-center justify-between relative z-50", className)}>
-      <Image src="/images/logo.png" alt="Logo" width={75.72} height={41.7} />
+      <Image
+        src={logoVariant === "white" ? "/images/logo-white.png" : "/images/logo.png"}
+        alt="Logo"
+        width={75.72}
+        height={41.7}
+      />
 
       {/* Desktop Navigation */}
       <nav className="hidden md:flex items-center rounded-full bg-[#fff] p-1.5 pl-6 gap-2 shadow-sm border border-border/5">

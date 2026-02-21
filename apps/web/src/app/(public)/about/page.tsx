@@ -47,7 +47,6 @@ const AboutPage = () => {
         delay: 0.2,
       });
 
-      // Stats animations
       gsap.from(".stat-item", {
         scrollTrigger: {
           trigger: ".stats-section",
@@ -58,6 +57,35 @@ const AboutPage = () => {
         duration: 0.8,
         stagger: 0.2,
         ease: "back.out(1.7)",
+      });
+
+      const statValues = gsap.utils.toArray<HTMLElement>("[data-stat-value]");
+
+      statValues.forEach((el) => {
+        const target = parseFloat(el.dataset.target ?? "0");
+        const prefix = el.dataset.prefix ?? "";
+        const suffix = el.dataset.suffix ?? "";
+        const decimals = parseInt(el.dataset.decimals ?? "0", 10);
+
+        const counter = { value: 0 };
+
+        gsap.to(counter, {
+          value: target,
+          duration: 3.5,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%",
+            toggleActions: "play none none reverse",
+          },
+          onUpdate: () => {
+            const formatted = counter.value.toLocaleString(undefined, {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            });
+            el.textContent = `${prefix}${formatted}${suffix}`;
+          },
+        });
       });
 
       // Core Values animations
@@ -118,15 +146,15 @@ const AboutPage = () => {
         
         <div className="relative z-10 w-full h-full flex flex-col px-4 md:px-16 py-8">
           <div className="hero-nav w-full relative z-20">
-            <PublicNav />
+            <PublicNav logoVariant="white" />
           </div>
           
           <div className="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto hero-text mt-10">
-            <span className="text-amber-500 font-bold tracking-widest text-sm mb-4 uppercase">
+            <span className="text-[#1f423e] font-bold tracking-widest text-sm mb-4 uppercase">
               About Us
             </span>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Democratizing <span className="text-amber-500">Real Estate</span> Investment
+              Democratizing <span className="text-[#1f423e]">Real Estate</span> Investment
             </h1>
             <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto">
               Making premium property ownership accessible, transparent, and profitable for everyone through blockchain technology.
@@ -163,7 +191,7 @@ const AboutPage = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
             
             <div className="absolute bottom-8 left-8 right-8 bg-[#1a1a1a] p-6 rounded-xl border border-white/10 backdrop-blur-sm">
-              <span className="text-amber-500 font-bold text-xl block mb-1">2021</span>
+              <span className="text-[#1f423e] font-bold text-xl block mb-1">2017</span>
               <p className="text-white/90 text-sm">
                 The year we began our journey to revolutionize African real estate.
               </p>
@@ -177,19 +205,49 @@ const AboutPage = () => {
         <div className="max-w-7xl mx-auto px-4 md:px-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="stat-item">
-              <h3 className="text-3xl md:text-4xl font-bold text-amber-500 mb-2">$45M+</h3>
+              <h3
+                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
+                data-stat-value
+                data-target="45"
+                data-prefix="$"
+                data-suffix="M+"
+              >
+                $45M+
+              </h3>
               <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Assets Tokenized</p>
             </div>
             <div className="stat-item">
-              <h3 className="text-3xl md:text-4xl font-bold text-amber-500 mb-2">12k+</h3>
+              <h3
+                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
+                data-stat-value
+                data-target="12"
+                data-suffix="k+"
+              >
+                12k+
+              </h3>
               <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Active Investors</p>
             </div>
             <div className="stat-item">
-              <h3 className="text-3xl md:text-4xl font-bold text-amber-500 mb-2">150+</h3>
+              <h3
+                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
+                data-stat-value
+                data-target="150"
+                data-suffix="+"
+              >
+                150+
+              </h3>
               <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Properties Managed</p>
             </div>
             <div className="stat-item">
-              <h3 className="text-3xl md:text-4xl font-bold text-amber-500 mb-2">14.2%</h3>
+              <h3
+                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
+                data-stat-value
+                data-target="14.2"
+                data-suffix="%"
+                data-decimals="1"
+              >
+                14.2%
+              </h3>
               <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Avg. Annual Return</p>
             </div>
           </div>
@@ -229,7 +287,7 @@ const AboutPage = () => {
             }
           ].map((value, idx) => (
             <div key={idx} className="value-card bg-gray-50 p-8 rounded-2xl hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-              <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-6 text-amber-600">
+              <div className="w-12 h-12 bg-[#1f423e]/10 rounded-lg flex items-center justify-center mb-6 text-[#1f423e]">
                 <value.icon className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-primary mb-3">{value.title}</h3>
@@ -250,7 +308,7 @@ const AboutPage = () => {
               Meet the visionaries combining real estate expertise with blockchain innovation.
             </p>
           </div>
-          <Link href="/team" className="text-amber-500 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
+          <Link href="/team" className="text-[#1f423e] font-semibold flex items-center gap-2 hover:gap-3 transition-all">
             View all team members <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -286,7 +344,7 @@ const AboutPage = () => {
                 />
               </div>
               <h3 className="text-xl font-bold text-primary">{leader.name}</h3>
-              <p className="text-amber-500 text-sm font-medium mb-3">{leader.role}</p>
+              <p className="text-[#1f423e] text-sm font-medium mb-3">{leader.role}</p>
               <p className="text-gray-500 text-sm leading-relaxed">
                 {leader.desc}
               </p>
@@ -319,7 +377,7 @@ const AboutPage = () => {
             <div className="flex flex-wrap gap-4 justify-center">
               <Button 
                 size="lg" 
-                className="bg-amber-500 hover:bg-amber-600 text-white border-none rounded-full px-8 text-lg font-semibold"
+                className="bg-[#1f423e] hover:bg-[#1f423e]/90 text-white border-none rounded-full px-8 text-lg font-semibold"
               >
                 Get Started Now
               </Button>
