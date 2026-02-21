@@ -158,7 +158,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="px-4 py-6 lg:px-6">
+    <div className="px-4 py-6 container mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-lg font-semibold">Projects</h1>

@@ -9,6 +9,9 @@ import {
   projectDocument,
   projectMedia,
   projectToken,
+  investment,
+  payout,
+  secondaryListing,
 } from "@richei-group/db/schema/project";
 import {
   eq,
@@ -280,6 +283,73 @@ export const projectRouter = {
             hasNextPage: page < totalPages,
             hasPreviousPage: page > 1,
           },
+        };
+      }),
+
+    getProject: adminProcedure
+      .input(
+        z
+          .object({ id: z.string().optional(), slug: z.string().optional() })
+          .refine(
+            (data) => data.id || data.slug,
+            "Either id or slug is required",
+          ),
+      )
+      .handler(async ({ input }) => {
+        const { id, slug } = input;
+
+        const proj = await db.query.project.findFirst({
+          where: id ? eq(project.id, id) : eq(project.slug, slug!),
+          with: {
+            revenueStreams: true,
+            returnStructures: true,
+            fees: true,
+            milestones: true,
+            documents: true,
+            media: true,
+            tokens: true,
+            updates: true,
+            creator: {
+              columns: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
+        });
+
+        if (!proj) {
+          throw new ORPCError("NOT_FOUND", {
+            message: "Project not found",
+          });
+        }
+
+        const [
+          investmentsCountResult,
+          payoutsCountResult,
+          secondaryListingsCountResult,
+        ] = await Promise.all([
+          db
+            .select({ total: count() })
+            .from(investment)
+            .where(eq(investment.projectId, proj.id)),
+          db
+            .select({ total: count() })
+            .from(payout)
+            .where(eq(payout.projectId, proj.id)),
+          db
+            .select({ total: count() })
+            .from(secondaryListing)
+            .where(eq(secondaryListing.projectId, proj.id)),
+        ]);
+
+        return {
+          ...proj,
+          investmentsCount: investmentsCountResult[0]?.total ?? 0,
+          payoutsCount: payoutsCountResult[0]?.total ?? 0,
+          secondaryListingsCount: secondaryListingsCountResult[0]?.total ?? 0,
         };
       }),
 
