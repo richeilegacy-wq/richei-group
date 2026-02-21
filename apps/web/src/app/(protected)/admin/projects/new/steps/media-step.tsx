@@ -97,7 +97,7 @@ const MediaStep = ({ form }: StepProps) => {
   ) as any[];
 
   const uploadMutation = useMutation(
-    orpc.project.uploadFile.mutationOptions({
+    orpc.project.admin.uploadFile.mutationOptions({
       onError: (error: any) => {
         toast.error(error.message || "Upload failed");
       },
