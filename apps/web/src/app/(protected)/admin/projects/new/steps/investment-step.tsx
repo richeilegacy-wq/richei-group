@@ -1,5 +1,6 @@
 "use client";
 
+import { formatNumberInput, stripFormatting } from "@/utils/price-formatter";
 import { Input } from "@/components/ui/input";
 import {
   Field,
@@ -130,11 +131,11 @@ const InvestmentStep = ({ form }: StepProps) => {
                 </FieldLabel>
                 <Input
                   id={field.name}
-                  placeholder="e.g. 50000000"
-                  value={field.state.value}
+                  placeholder="e.g. 50,000,000"
+                  value={formatNumberInput(field.state.value)}
                   onBlur={field.handleBlur}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    field.handleChange(e.target.value)
+                    field.handleChange(stripFormatting(e.target.value))
                   }
                   className={inputClass(hasError)}
                 />
@@ -203,11 +204,11 @@ const InvestmentStep = ({ form }: StepProps) => {
                 </FieldLabel>
                 <Input
                   id={field.name}
-                  placeholder="e.g. 100000"
-                  value={field.state.value}
+                  placeholder="e.g. 100,000"
+                  value={formatNumberInput(field.state.value)}
                   onBlur={field.handleBlur}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    field.handleChange(e.target.value)
+                    field.handleChange(stripFormatting(e.target.value))
                   }
                   className={inputClass(hasError)}
                 />
@@ -249,11 +250,11 @@ const InvestmentStep = ({ form }: StepProps) => {
                 </FieldLabel>
                 <Input
                   id={field.name}
-                  placeholder="e.g. 10000000"
-                  value={field.state.value}
+                  placeholder="e.g. 10,000,000"
+                  value={formatNumberInput(field.state.value)}
                   onBlur={field.handleBlur}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    field.handleChange(e.target.value)
+                    field.handleChange(stripFormatting(e.target.value))
                   }
                   className={inputClass(hasError)}
                 />

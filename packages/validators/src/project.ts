@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+/** Transform empty strings to undefined so optional numeric DB columns receive NULL instead of "" */
+const emptyToUndefined = (val: string | undefined) =>
+  val === "" ? undefined : val;
+
 export const revenueStreamSchema = z.object({
   type: z.enum([
     "RESALE",
@@ -10,7 +14,7 @@ export const revenueStreamSchema = z.object({
     "OTHER",
   ]),
   description: z.string().optional(),
-  expectedReturnRate: z.string().optional(),
+  expectedReturnRate: z.string().optional().transform(emptyToUndefined),
   isActive: z.boolean().default(true),
 });
 
@@ -21,7 +25,7 @@ export const returnStructureSchema = z.object({
     "APPRECIATION",
     "PERIODIC_RENTAL",
   ]),
-  rate: z.string().optional(),
+  rate: z.string().optional().transform(emptyToUndefined),
   payoutFrequency: z.enum([
     "MONTHLY",
     "QUARTERLY",
@@ -36,8 +40,8 @@ export const returnStructureSchema = z.object({
 
 export const feeSchema = z.object({
   type: z.enum(["UPFRONT", "ON_PROFIT", "ON_WITHDRAWAL", "MANAGEMENT"]),
-  rate: z.string().optional(),
-  fixedAmount: z.string().optional(),
+  rate: z.string().optional().transform(emptyToUndefined),
+  fixedAmount: z.string().optional().transform(emptyToUndefined),
   description: z.string().optional(),
 });
 
@@ -129,13 +133,19 @@ const _createProjectBaseSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   country: z.string().default("Nigeria"),
-  latitude: z.string().optional(),
-  longitude: z.string().optional(),
+  latitude: z.string().optional().transform(emptyToUndefined),
+  longitude: z.string().optional().transform(emptyToUndefined),
 
   currency: z.string().default("NGN"),
   targetAmount: positiveNumericString,
-  minInvestment: numericString.optional().or(z.literal("")),
-  maxInvestment: numericString.optional().or(z.literal("")),
+  minInvestment: numericString
+    .optional()
+    .or(z.literal(""))
+    .transform(emptyToUndefined),
+  maxInvestment: numericString
+    .optional()
+    .or(z.literal(""))
+    .transform(emptyToUndefined),
 
   fundingDeadline: z.coerce.date().optional(),
   underfundingPolicy: z
@@ -147,7 +157,7 @@ const _createProjectBaseSchema = z.object({
 
   riskLevel: z.string().optional(),
   earlyExitAllowed: z.boolean().default(false),
-  earlyExitPenaltyRate: z.string().optional(),
+  earlyExitPenaltyRate: z.string().optional().transform(emptyToUndefined),
   earlyExitNoticeDays: z.number().int().min(0).optional(),
   secondaryMarketEnabled: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
@@ -162,7 +172,10 @@ const _createProjectBaseSchema = z.object({
 });
 
 /** Cross-field refinement applied to both create and update schemas */
-function projectRefinement(data: z.infer<typeof _createProjectBaseSchema>, ctx: z.RefinementCtx) {
+function projectRefinement(
+  data: z.infer<typeof _createProjectBaseSchema>,
+  ctx: z.RefinementCtx,
+) {
   const minVal = data.minInvestment
     ? parseFloat(data.minInvestment)
     : undefined;
@@ -176,8 +189,7 @@ function projectRefinement(data: z.infer<typeof _createProjectBaseSchema>, ctx: 
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["minInvestment"],
-      message:
-        "Minimum investment cannot be greater than maximum investment",
+      message: "Minimum investment cannot be greater than maximum investment",
     });
   }
 
@@ -258,7 +270,8 @@ function projectRefinement(data: z.infer<typeof _createProjectBaseSchema>, ctx: 
 }
 
 // createProjectSchema = base + refinements
-export const createProjectSchema = _createProjectBaseSchema.superRefine(projectRefinement);
+export const createProjectSchema =
+  _createProjectBaseSchema.superRefine(projectRefinement);
 
 // updateProjectSchema = base (without slug) + partial + id, then refinements
 export const updateProjectSchema = _createProjectBaseSchema
