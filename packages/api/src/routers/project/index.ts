@@ -10,7 +10,18 @@ import {
   projectMedia,
   projectToken,
 } from "@richei-group/db/schema/project";
-import { eq } from "@richei-group/db";
+import {
+  eq,
+  and,
+  or,
+  ilike,
+  gte,
+  lte,
+  asc,
+  desc,
+  count,
+  type SQL,
+} from "@richei-group/db";
 import { z } from "zod";
 import {
   createProjectSchema,
@@ -23,6 +34,8 @@ import {
   documentSchema,
   mediaSchema,
   tokenSchema,
+  adminProjectFilterSchema,
+  adminProjectSearchSchema,
 } from "@richei-group/validators";
 import { uploadFile } from "@richei-group/uploader";
 
@@ -31,6 +44,17 @@ import { adminProcedure, protectedProcedure, publicProcedure } from "../..";
 function generateId() {
   return crypto.randomUUID();
 }
+
+/** Column map for dynamic sorting */
+const sortColumnMap = {
+  name: project.name,
+  createdAt: project.createdAt,
+  updatedAt: project.updatedAt,
+  targetAmount: project.targetAmount,
+  raisedAmount: project.raisedAmount,
+  status: project.status,
+  type: project.type,
+} as const;
 
 export const projectRouter = {
   uploadFile: adminProcedure
@@ -160,6 +184,163 @@ export const projectRouter = {
       });
 
       return result;
+    }),
+
+  getAll: adminProcedure
+    .input(adminProjectFilterSchema)
+    .handler(async ({ input }) => {
+      const {
+        type,
+        status,
+        ownershipType,
+        isFeatured,
+        earlyExitAllowed,
+        secondaryMarketEnabled,
+        city,
+        state,
+        country,
+        createdAfter,
+        createdBefore,
+        minTargetAmount,
+        maxTargetAmount,
+        sortBy,
+        sortOrder,
+        page,
+        limit,
+      } = input;
+
+      // Build WHERE conditions
+      const conditions: SQL[] = [];
+
+      // Enum filters
+      if (type) conditions.push(eq(project.type, type));
+      if (status) conditions.push(eq(project.status, status));
+      if (ownershipType)
+        conditions.push(eq(project.ownershipType, ownershipType));
+
+      // Boolean filters
+      if (isFeatured !== undefined)
+        conditions.push(eq(project.isFeatured, isFeatured));
+      if (earlyExitAllowed !== undefined)
+        conditions.push(eq(project.earlyExitAllowed, earlyExitAllowed));
+      if (secondaryMarketEnabled !== undefined)
+        conditions.push(
+          eq(project.secondaryMarketEnabled, secondaryMarketEnabled),
+        );
+
+      // Location filters (case-insensitive partial match)
+      if (city) conditions.push(ilike(project.city, `%${city}%`));
+      if (state) conditions.push(ilike(project.state, `%${state}%`));
+      if (country) conditions.push(ilike(project.country, `%${country}%`));
+
+      // Date range filters
+      if (createdAfter) conditions.push(gte(project.createdAt, createdAfter));
+      if (createdBefore) conditions.push(lte(project.createdAt, createdBefore));
+
+      // Funding range filters
+      if (minTargetAmount)
+        conditions.push(gte(project.targetAmount, minTargetAmount));
+      if (maxTargetAmount)
+        conditions.push(lte(project.targetAmount, maxTargetAmount));
+
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
+
+      // Sorting
+      const sortColumn = sortColumnMap[sortBy];
+      const orderFn = sortOrder === "asc" ? asc : desc;
+
+      // Calculate offset from page
+      const offset = (page - 1) * limit;
+
+      // Run data + count queries in parallel
+      const [items, countResult] = await Promise.all([
+        db
+          .select()
+          .from(project)
+          .where(whereClause)
+          .orderBy(orderFn(sortColumn))
+          .limit(limit)
+          .offset(offset),
+        db.select({ total: count() }).from(project).where(whereClause),
+      ]);
+
+      const total = countResult[0]?.total ?? 0;
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        items,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      };
+    }),
+
+  search: adminProcedure
+    .input(adminProjectSearchSchema)
+    .handler(async ({ input }) => {
+      const { query, type, status, page, limit } = input;
+
+      const pattern = `%${query}%`;
+
+      // Build WHERE conditions — text search is always applied
+      const conditions: SQL[] = [
+        or(
+          ilike(project.name, pattern),
+          ilike(project.slug, pattern),
+          ilike(project.description, pattern),
+        )!,
+      ];
+
+      // Optional narrowing filters
+      if (type) conditions.push(eq(project.type, type));
+      if (status) conditions.push(eq(project.status, status));
+
+      const whereClause = and(...conditions);
+      const offset = (page - 1) * limit;
+
+      const [items, countResult] = await Promise.all([
+        db
+          .select({
+            id: project.id,
+            name: project.name,
+            slug: project.slug,
+            type: project.type,
+            status: project.status,
+            targetAmount: project.targetAmount,
+            raisedAmount: project.raisedAmount,
+            city: project.city,
+            state: project.state,
+            isFeatured: project.isFeatured,
+            createdAt: project.createdAt,
+          })
+          .from(project)
+          .where(whereClause)
+          .orderBy(desc(project.createdAt))
+          .limit(limit)
+          .offset(offset),
+        db.select({ total: count() }).from(project).where(whereClause),
+      ]);
+
+      const total = countResult[0]?.total ?? 0;
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        items,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      };
     }),
 
   update: adminProcedure

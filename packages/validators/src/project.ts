@@ -299,9 +299,91 @@ export const projectFilterSchema = z.object({
   offset: z.number().int().min(0).default(0),
 });
 
+export const adminProjectFilterSchema = z.object({
+  // --- Enum filters ---
+  type: z
+    .enum(["ESTATE", "LAND", "PROPERTY", "BUILDING", "FARM", "OTHER"])
+    .optional(),
+  status: z
+    .enum([
+      "DRAFT",
+      "FUNDING",
+      "ACTIVE",
+      "PAUSED",
+      "COMPLETED",
+      "CANCELLED",
+      "FAILED",
+    ])
+    .optional(),
+  ownershipType: z.enum(["LEGAL_TITLE", "PROFIT_PARTICIPATION"]).optional(),
+
+  // --- Boolean filters ---
+  isFeatured: z.boolean().optional(),
+  earlyExitAllowed: z.boolean().optional(),
+  secondaryMarketEnabled: z.boolean().optional(),
+
+  // --- Location filters ---
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+
+  // --- Date range filters ---
+  createdAfter: z.coerce.date().optional(),
+  createdBefore: z.coerce.date().optional(),
+
+  // --- Funding range filters ---
+  minTargetAmount: z.string().optional(),
+  maxTargetAmount: z.string().optional(),
+
+  // --- Sorting ---
+  sortBy: z
+    .enum([
+      "name",
+      "createdAt",
+      "updatedAt",
+      "targetAmount",
+      "raisedAmount",
+      "status",
+      "type",
+    ])
+    .default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+
+  // --- Pagination (page-based) ---
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(100).default(20),
+});
+
+export const adminProjectSearchSchema = z.object({
+  /** The search query, matched against name, slug, and description */
+  query: z.string().min(1, "Search query is required"),
+
+  // Optional narrowing filters
+  type: z
+    .enum(["ESTATE", "LAND", "PROPERTY", "BUILDING", "FARM", "OTHER"])
+    .optional(),
+  status: z
+    .enum([
+      "DRAFT",
+      "FUNDING",
+      "ACTIVE",
+      "PAUSED",
+      "COMPLETED",
+      "CANCELLED",
+      "FAILED",
+    ])
+    .optional(),
+
+  // --- Pagination ---
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(50).default(10),
+});
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type ProjectFilterInput = z.infer<typeof projectFilterSchema>;
+export type AdminProjectFilterInput = z.infer<typeof adminProjectFilterSchema>;
+export type AdminProjectSearchInput = z.infer<typeof adminProjectSearchSchema>;
 export type RevenueStreamInput = z.infer<typeof revenueStreamSchema>;
 export type ReturnStructureInput = z.infer<typeof returnStructureSchema>;
 export type FeeInput = z.infer<typeof feeSchema>;
