@@ -18,32 +18,41 @@ import { Button } from "../ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-const navItems = [
-  {
-    title: "Portfolio",
-    href: "/dashboard",
-    icon: "/icons/dashboard/portfolio.svg",
-  },
-  {
-    title: "Wallet",
-    href: "/dashboard/wallet",
-    icon: "/icons/dashboard/wallet.svg",
-  },
-  {
-    title: "Academy",
-    href: "/dashboard/academy",
-    icon: "/icons/dashboard/academy.svg",
-  },
-  {
-    title: "Marketplace",
-    href: "/dashboard/marketplace",
-    icon: "/icons/dashboard/marketplace.svg",
-  },
-];
-
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+
+  const { data: session } = authClient.useSession();
+
+  const navItems = [
+    {
+      title: "Portfolio",
+      href: "/dashboard",
+      icon: "/icons/dashboard/portfolio.svg",
+    },
+    {
+      title: "Wallet",
+      href: "/dashboard/wallet",
+      icon: "/icons/dashboard/wallet.svg",
+    },
+    {
+      title: "Academy",
+      href: "/dashboard/academy",
+      icon: "/icons/dashboard/academy.svg",
+    },
+    {
+      title: "Marketplace",
+      href: "/dashboard/marketplace",
+      icon: "/icons/dashboard/marketplace.svg",
+    },
+    ...(session?.user.role === "ADMIN" ? [
+      {
+        title: "Admin",
+        href: "/admin",
+        icon: "/icons/dashboard/admin.svg",
+      },
+    ] : []),
+  ];
   return (
     <Sidebar>
       <SidebarHeader className="items-center pt-10 pb-6">
