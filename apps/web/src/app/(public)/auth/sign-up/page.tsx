@@ -1,5 +1,8 @@
-import SignUpPage from "./sign-up";
+import SignUpPage, { ComingSoonPage } from "./sign-up";
 import type { Metadata } from "next";
+import { env } from "@richei-group/env/web";
+
+const isProduction = env.NEXT_PUBLIC_NODE_ENV === "production";
 
 export const metadata: Metadata = {
   title: "Sign Up | Richei Group",
@@ -7,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 const page = async () => {
-  return <SignUpPage />;
+  return isProduction ? <ComingSoonPage /> : <SignUpPage />;
 };
 
 export default page;
