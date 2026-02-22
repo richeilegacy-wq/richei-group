@@ -12,6 +12,7 @@ import {cn} from "@/lib/utils";
 const navLinks: { href: Route; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/about" as Route, label: "About" },
+  { href: "/#services" as Route, label: "Services" },
   { href: "/#faq" as Route, label: "FAQ" },
   { href: "/#contact" as Route, label: "Contact us" },
 ];

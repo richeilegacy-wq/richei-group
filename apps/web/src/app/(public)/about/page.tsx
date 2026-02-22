@@ -203,54 +203,52 @@ const AboutPage = () => {
       {/* Stats Section */}
       <section className="stats-section py-16 bg-gray-50 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 md:px-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="stat-item">
-              <h3
-                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
-                data-stat-value
-                data-target="45"
-                data-prefix="$"
-                data-suffix="M+"
-              >
-                $45M+
-              </h3>
-              <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Assets Tokenized</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+            <div className="stat-item flex flex-col items-center">
+              <div className="relative w-60 h-60 mb-4">
+                <Image
+                  src="/images/about/year.png"
+                  alt="Commenced operations icon"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+             
+           
             </div>
-            <div className="stat-item">
-              <h3
-                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
-                data-stat-value
-                data-target="12"
-                data-suffix="k+"
-              >
-                12k+
-              </h3>
-              <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Active Investors</p>
+
+            <div className="stat-item flex flex-col items-center">
+              <div className="relative w-60 h-60 mb-4">
+                <Image
+                  src="/images/about/survey.png"
+                  alt="Land surveys icon"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+             
+             
             </div>
-            <div className="stat-item">
-              <h3
-                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
-                data-stat-value
-                data-target="150"
-                data-suffix="+"
-              >
-                150+
-              </h3>
-              <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Properties Managed</p>
-            </div>
-            <div className="stat-item">
-              <h3
-                className="text-3xl md:text-4xl font-bold text-[#1f423e] mb-2"
-                data-stat-value
-                data-target="14.2"
-                data-suffix="%"
-                data-decimals="1"
-              >
-                14.2%
-              </h3>
-              <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-wider">Avg. Annual Return</p>
+
+            <div className="stat-item flex flex-col items-center">
+              <div className="relative w-60 h-60 mb-4">
+                <Image
+                  src="/images/about/properties.png"
+                  alt="Properties across Nigeria icon"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+             
+            
             </div>
           </div>
+
+          <p className="mt-12 text-center text-gray-600 max-w-3xl mx-auto text-sm md:text-base">
+            At RicHei Group, we are transforming the future of real estate in Africa with a
+            commitment to integrity, long-term value, and maximizing the full potential of our
+            clients&apos; properties.
+          </p>
         </div>
       </section>
 

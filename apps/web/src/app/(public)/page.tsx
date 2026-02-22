@@ -11,6 +11,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import WhoWeAre from "@/components/landing/who-we-are";
 import InvestorsDashboard from "@/components/landing/investors-dashboard";
 import HowItWorks from "@/components/landing/how-it-works";
+import LicensesSection from "@/components/landing/licenses-section";
+import ServicesSection from "@/components/landing/services-section";
 import FAQ from "@/components/landing/faq";
 import ContactSection from "@/components/landing/contact-section";
 import CTASection from "@/components/landing/cta-section";
@@ -244,8 +246,10 @@ const page = () => {
         </div>
       </section>
       <WhoWeAre />
+      <ServicesSection />
       <InvestorsDashboard />
       <HowItWorks />
+      <LicensesSection />
       <FAQ />
       <ContactSection />
       <CTASection />
