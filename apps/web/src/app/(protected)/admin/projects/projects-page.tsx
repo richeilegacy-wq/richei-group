@@ -125,7 +125,7 @@ function formatCompactAmount(amount: string | null) {
   const num = parseFloat(amount);
   if (isNaN(num)) return "N/A";
   return formatPrice(num);
-}
+} 
 
 const ITEMS_PER_PAGE = 12;
 

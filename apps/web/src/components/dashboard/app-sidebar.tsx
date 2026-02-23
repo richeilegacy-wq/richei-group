@@ -38,7 +38,7 @@ export function AppSidebar() {
     {
       title: "Academy",
       href: "/dashboard/academy",
-      icon: "/icons/dashboard/academy.svg",
+      icon: "/icons /dashboard/academy.svg",
     },
     {
       title: "Marketplace",
