@@ -120,7 +120,7 @@
              <article
                key={service.title}
                ref={(el) => {
-                 cardRefs.current[index] = el;
+                 cardRefs.current[index] = el as HTMLDivElement;
                }}
                className={`service-card flex flex-col gap-10 md:items-center ${
                  index % 2 === 1 ? "md:flex-row-reverse" : "md:flex-row"
