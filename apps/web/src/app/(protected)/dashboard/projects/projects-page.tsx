@@ -112,7 +112,7 @@ function ProjectCard({ project }: { project: Project }) {
 
   let highlightMetricText = "";
   let highlightMetricLabel = "";
-  let highlightMetricColor = "text-emerald-500";
+  let highlightMetricColor = "text-emerald-300";
 
   // Check out return structures/revenue streams to determine the highlighted metric
   if (project.returnStructures && project.returnStructures.length > 0) {
@@ -126,7 +126,7 @@ function ProjectCard({ project }: { project: Project }) {
         ? rs.payoutFrequency.charAt(0) +
           rs.payoutFrequency.slice(1).toLowerCase()
         : "Periodic";
-      highlightMetricColor = "text-zinc-900 dark:text-zinc-100";
+      highlightMetricColor = "text-white";
     } else {
       highlightMetricLabel = "Appreciation";
       highlightMetricText = "High Growth";
@@ -142,7 +142,7 @@ function ProjectCard({ project }: { project: Project }) {
     // defaults
     highlightMetricLabel = "Target Return";
     highlightMetricText = "TBD";
-    highlightMetricColor = "text-muted-foreground";
+    highlightMetricColor = "text-white/70";
   }
 
   let statusBg = "bg-white text-zinc-900";
@@ -209,69 +209,69 @@ function ProjectCard({ project }: { project: Project }) {
             {statusText}
           </div>
         </div>
-      </div>
 
-      <div className="p-5 flex flex-col grow">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-1">
-            {project.name}
-          </h3>
-          <button className="text-muted-foreground hover:text-red-500 transition-colors shrink-0 mt-0.5">
-            <Heart className="size-5" />
-          </button>
-        </div>
-
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-6">
-          {project.description ||
-            "A prime real estate opportunity in our curated portfolio."}
-        </p>
-
-        <div className="mt-auto space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">
-                {progress >= 100 ? "Funded" : "Raised"}
-              </span>
-              <span className="text-zinc-900 font-medium dark:text-zinc-100">
-                {progress >= 100 ? (
-                  "100%"
-                ) : (
-                  <>
-                    {formatCompact(project.raisedAmount)}{" "}
-                    <span className="text-muted-foreground font-normal">
-                      / {formatCompact(project.targetAmount)}
-                    </span>
-                  </>
-                )}
-              </span>
+        <div className="absolute inset-x-3 bottom-3 z-10">
+          <div className="rounded-xl bg-black/45 backdrop-blur-sm p-4 text-white">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <h3 className="text-lg font-bold leading-tight line-clamp-1">
+                {project.name}
+              </h3>
+              <button className="text-white/70 hover:text-red-400 transition-colors shrink-0 mt-0.5">
+                <Heart className="size-5" />
+              </button>
             </div>
-            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-              <div
-                className={cn(
-                  "h-full rounded-full transition-all duration-1000",
-                  progress >= 100
-                    ? "bg-emerald-500"
-                    : "bg-zinc-900 dark:bg-zinc-100",
-                )}
-                style={{ width: `${Math.max(progress, 2)}%` }}
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
-            <div>
-              <p className="text-[11px] text-muted-foreground mb-1 uppercase tracking-wider font-medium">
-                Min. Investment
-              </p>
-              <p className="text-sm font-bold">{formattedMinInvestment}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[11px] text-muted-foreground mb-1 uppercase tracking-wider font-medium">
-                {highlightMetricLabel}
-              </p>
-              <p className={cn("text-sm font-bold", highlightMetricColor)}>
-                {highlightMetricText}
-              </p>
+            <p className="text-sm text-white/80 line-clamp-2 mb-4">
+              {project.description ||
+                "A prime real estate opportunity in our curated portfolio."}
+            </p>
+
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="text-white/70">
+                    {progress >= 100 ? "Funded" : "Raised"}
+                  </span>
+                  <span className="text-white font-medium">
+                    {progress >= 100 ? (
+                      "100%"
+                    ) : (
+                      <>
+                        {formatCompact(project.raisedAmount)}{" "}
+                        <span className="text-white/70 font-normal">
+                          / {formatCompact(project.targetAmount)}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-all duration-1000",
+                      progress >= 100 ? "bg-emerald-400" : "bg-white",
+                    )}
+                    style={{ width: `${Math.max(progress, 2)}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/10">
+                <div>
+                  <p className="text-[11px] text-white/60 mb-1 uppercase tracking-wider font-medium">
+                    Min. Investment
+                  </p>
+                  <p className="text-sm font-bold">{formattedMinInvestment}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[11px] text-white/60 mb-1 uppercase tracking-wider font-medium">
+                    {highlightMetricLabel}
+                  </p>
+                  <p className={cn("text-sm font-bold", highlightMetricColor)}>
+                    {highlightMetricText}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
