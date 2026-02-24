@@ -31,6 +31,11 @@ export function AppSidebar() {
       icon: "/icons/dashboard/portfolio.svg",
     },
     {
+      title: "Projects",
+      href: "/dashboard/projects",
+      icon: "/icons/dashboard/projects.svg",
+    },
+    {
       title: "Wallet",
       href: "/dashboard/wallet",
       icon: "/icons/dashboard/wallet.svg",

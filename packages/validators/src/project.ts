@@ -299,6 +299,38 @@ export const projectFilterSchema = z.object({
   offset: z.number().int().min(0).default(0),
 });
 
+export const userProjectListSchema = z.object({
+  type: z
+    .enum(["ESTATE", "LAND", "PROPERTY", "BUILDING", "FARM", "OTHER"])
+    .optional(),
+  status: z
+    .enum([
+      "DRAFT",
+      "FUNDING",
+      "ACTIVE",
+      "PAUSED",
+      "COMPLETED",
+      "CANCELLED",
+      "FAILED",
+    ])
+    .optional(),
+  isFeatured: z.boolean().optional(),
+  search: z.string().optional(),
+  sortBy: z
+    .enum([
+      "name",
+      "createdAt",
+      "targetAmount",
+      "raisedAmount",
+      "status",
+      "type",
+    ])
+    .default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(100).default(20),
+});
+
 export const adminProjectFilterSchema = z.object({
   // --- Enum filters ---
   type: z
@@ -382,6 +414,7 @@ export const adminProjectSearchSchema = z.object({
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type ProjectFilterInput = z.infer<typeof projectFilterSchema>;
+export type UserProjectListInput = z.infer<typeof userProjectListSchema>;
 export type AdminProjectFilterInput = z.infer<typeof adminProjectFilterSchema>;
 export type AdminProjectSearchInput = z.infer<typeof adminProjectSearchSchema>;
 export type RevenueStreamInput = z.infer<typeof revenueStreamSchema>;

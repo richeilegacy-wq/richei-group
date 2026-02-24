@@ -29,7 +29,7 @@ import { z } from "zod";
 import {
   createProjectSchema,
   updateProjectSchema,
-  projectFilterSchema,
+  userProjectListSchema,
   revenueStreamSchema,
   returnStructureSchema,
   feeSchema,
@@ -432,9 +432,85 @@ export const projectRouter = {
     .input(z.object({ id: z.string() }))
     .handler(async ({ input }) => {}),
 
-  list: publicProcedure
-    .input(projectFilterSchema)
-    .handler(async ({ input }) => {}),
+  list: protectedProcedure
+    .input(userProjectListSchema)
+    .handler(async ({ input }) => {
+      const {
+        type,
+        status,
+        isFeatured,
+        search,
+        sortBy,
+        sortOrder,
+        page,
+        limit,
+      } = input;
+
+      const conditions: SQL[] = [];
+      if (type) conditions.push(eq(project.type, type));
+      if (status) conditions.push(eq(project.status, status));
+      if (isFeatured !== undefined)
+        conditions.push(eq(project.isFeatured, isFeatured));
+      if (search?.trim()) {
+        const pattern = `%${search.trim()}%`;
+        conditions.push(
+          or(
+            ilike(project.name, pattern),
+            ilike(project.slug, pattern),
+            ilike(project.description, pattern),
+          )!,
+        );
+      }
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
+      const sortColumn = sortColumnMap[sortBy];
+      const offset = (page - 1) * limit;
+
+      const [items, countResult] = await Promise.all([
+        db.query.project.findMany({
+          where: whereClause,
+          columns: {
+            createdBy: false,
+          },
+          with: {
+            revenueStreams: true,
+            returnStructures: true,
+            media: {
+              columns: {
+                id: true,
+                projectId: true,
+                type: true,
+                url: true,
+                altText: true,
+                sortOrder: true,
+                isCover: true,
+              },
+            },
+          },
+          orderBy: (_p, { asc, desc }) => [
+            sortOrder === "asc" ? asc(sortColumn) : desc(sortColumn),
+          ],
+          limit,
+          offset,
+        }),
+        db.select({ total: count() }).from(project).where(whereClause),
+      ]);
+
+      const total = Number(countResult[0]?.total ?? 0);
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        items,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      };
+    }),
 
   addRevenueStream: adminProcedure
     .input(revenueStreamSchema.extend({ projectId: z.string() }))
