@@ -290,7 +290,7 @@ const SignUpPage = () => {
 
             <Image
               data-anim="hero-image"
-              src="/images/hero-image.png"
+              src="/images/house.jpeg"
               alt="Hero Image"
               width={500}
               height={400}
