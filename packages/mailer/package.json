@@ -1,0 +1,25 @@
+{
+  "name": "@richei-group/mailer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@richei-group/env": "workspace:*",
+    "dotenv": "catalog:",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "@richei-group/config": "workspace:*",
+    "@types/nodemailer": "^6.4.17",
+    "typescript": "catalog:"
+  }
+}

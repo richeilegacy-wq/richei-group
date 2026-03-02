@@ -1,0 +1,3 @@
+{
+  "extends": "@richei-group/config/tsconfig.base.json"
+}
