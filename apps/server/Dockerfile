@@ -43,10 +43,16 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy node_modules from the build stage
-# Root node_modules has most deps; server-level node_modules has non-hoisted packages (e.g. @orpc/*)
+# Copy package.json files so Bun can resolve the workspace graph at runtime
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/apps/server/package.json ./apps/server/package.json
+
+# Copy ALL node_modules (root + any nested hoisted packages)
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/server/node_modules ./apps/server/node_modules
+
+# Copy workspace packages source (tsdown doesn't fully bundle all @richei-group/* deps)
+COPY --from=build /app/packages ./packages
 
 # Copy built output from build stage
 COPY --from=build /app/apps/server/dist ./apps/server/dist
