@@ -43,8 +43,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy node_modules from the build stage (avoids lockfile mismatch with --production)
+# Copy node_modules from the build stage
+# Root node_modules has most deps; server-level node_modules has non-hoisted packages (e.g. @orpc/*)
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/apps/server/node_modules ./apps/server/node_modules
 
 # Copy built output from build stage
 COPY --from=build /app/apps/server/dist ./apps/server/dist
