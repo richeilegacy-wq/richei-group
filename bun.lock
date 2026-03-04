@@ -91,6 +91,7 @@
         "@richei-group/auth": "workspace:*",
         "@richei-group/db": "workspace:*",
         "@richei-group/env": "workspace:*",
+        "@richei-group/uploader": "workspace:*",
         "@richei-group/validators": "workspace:*",
         "@types/pg": "catalog:",
         "dotenv": "catalog:",
