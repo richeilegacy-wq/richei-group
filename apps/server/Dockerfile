@@ -38,24 +38,11 @@ COPY apps/server/ ./apps/server/
 RUN cd apps/server && bun run build
 
 # ── Stage 3: Production image ────────────────
-FROM oven/bun:1-slim AS production
-WORKDIR /app
+# Run directly from the build stage to preserve Bun's symlink-based
+# node_modules resolution. Docker COPY between stages breaks these links.
+FROM build AS production
 
 ENV NODE_ENV=production
-
-# Copy package.json files so Bun can resolve the workspace graph at runtime
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/apps/server/package.json ./apps/server/package.json
-
-# Copy ALL node_modules (root + any nested hoisted packages)
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/server/node_modules ./apps/server/node_modules
-
-# Copy workspace packages source (tsdown doesn't fully bundle all @richei-group/* deps)
-COPY --from=build /app/packages ./packages
-
-# Copy built output from build stage
-COPY --from=build /app/apps/server/dist ./apps/server/dist
 
 EXPOSE 3000
 
