@@ -11,6 +11,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@better-auth/drizzle-adapter": "catalog:",
     "@richei-group/db": "workspace:*",
     "@richei-group/env": "workspace:*",
     "better-auth": "catalog:",
