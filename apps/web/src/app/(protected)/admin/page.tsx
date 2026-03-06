@@ -10,17 +10,17 @@ const page = async () => {
   });
 
   if (!session || !session.data) {
-    console.log("not signed in");
+    console.log("ADMIN: not signed in");
     redirect("/auth/sign-in");
   }
 
   if (session.data.user.role !== "ADMIN") {
-    console.log("not admin");
+    console.log("ADMIN: not admin");
     console.log(session.data.user.role);
     redirect("/dashboard");
   }
 
-  console.log("admin");
+  console.log("ADMIN: signed in");
 
   return <div>HI admin</div>;
 };
