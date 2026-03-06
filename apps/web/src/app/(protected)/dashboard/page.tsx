@@ -13,6 +13,7 @@ export default async function DashboardPage() {
 
     if (!session || !session.data) {
       console.log("DASHBOARD: not signed in");
+      console.log(session);
       redirect("/auth/sign-in");
     }
   
