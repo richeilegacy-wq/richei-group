@@ -5,7 +5,7 @@
 # ──────────────────────────────────────────────
 
 # ── Stage 1: Install ALL workspace dependencies ──
-FROM oven/bun:1.1 AS base
+FROM oven/bun:1 AS base
 WORKDIR /app
 
 # Copy root workspace manifests & lockfile
@@ -24,7 +24,7 @@ COPY apps/server/package.json     ./apps/server/package.json
 COPY apps/web/package.json        ./apps/web/package.json
 
 # Install all deps (including devDependencies needed for the build)
-RUN bun install
+RUN bun install --frozen-lockfile
 
 # ── Stage 2: Build ────────────────────────────
 FROM base AS build
