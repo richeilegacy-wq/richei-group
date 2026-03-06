@@ -552,7 +552,12 @@ const SignUpPage = () => {
               </div>
 
               <div data-anim="submit-btn">
-                <form.Subscribe>
+                <form.Subscribe
+                  selector={(state) => ({
+                    canSubmit: state.canSubmit,
+                    isSubmitting: state.isSubmitting,
+                  })}
+                >
                   {(state) => (
                     <Button
                       type="submit"

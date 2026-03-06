@@ -169,23 +169,23 @@ const SignInPage = () => {
       password: "",
     },
     onSubmit: async ({ value }) => {
-     startTransition(async () => {
-       await authClient.signIn.email(
-        {
-          email: value.email,
-          password: value.password,
-        },
-        {
-          onSuccess: () => {
-            router.push("/dashboard");
-            toast.success("Sign in successful");
+      startTransition(async () => {
+        await authClient.signIn.email(
+          {
+            email: value.email,
+            password: value.password,
           },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
+          {
+            onSuccess: () => {
+              router.push("/dashboard");
+              toast.success("Sign in successful");
+            },
+            onError: (error) => {
+              toast.error(error.error.message || error.error.statusText);
+            },
           },
-        },
-      );
-     })
+        );
+      });
     },
     validators: {
       onSubmit: signInSchema,
@@ -455,7 +455,12 @@ const SignInPage = () => {
               </div>
 
               <div data-anim="submit-btn">
-                <form.Subscribe>
+                <form.Subscribe
+                  selector={(state) => ({
+                    canSubmit: state.canSubmit,
+                    isSubmitting: state.isSubmitting,
+                  })}
+                >
                   {(state) => (
                     <Button
                       type="submit"

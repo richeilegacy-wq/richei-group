@@ -10,7 +10,11 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
+export default function SignUpForm({
+  onSwitchToSignIn,
+}: {
+  onSwitchToSignIn: () => void;
+}) {
   const router = useRouter();
   const { isPending } = authClient.useSession();
 
@@ -131,7 +135,12 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
           </form.Field>
         </div>
 
-        <form.Subscribe>
+        <form.Subscribe
+          selector={(state) => ({
+            canSubmit: state.canSubmit,
+            isSubmitting: state.isSubmitting,
+          })}
+        >
           {(state) => (
             <Button
               type="submit"
