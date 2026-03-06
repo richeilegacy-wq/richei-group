@@ -16,12 +16,14 @@ export function middleware(request: NextRequest) {
   );
 
   if (isProtectedRoute && !hasSessionToken) {
+    console.log("MIDDLEWARE: not signed in");
     return NextResponse.redirect(new URL("/auth/sign-in", request.url));
   }
 
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   if (isAuthRoute && hasSessionToken) {
+    console.log("MIDDLEWARE: signed in");
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
