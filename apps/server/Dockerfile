@@ -5,7 +5,7 @@
 # ──────────────────────────────────────────────
 
 # ── Stage 1: Install ALL workspace dependencies ──
-FROM oven/bun:1 AS base
+FROM oven/bun:1.1 AS base
 WORKDIR /app
 
 # Copy root workspace manifests & lockfile
