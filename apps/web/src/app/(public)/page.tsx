@@ -90,6 +90,7 @@ const page = () => {
 
   return (
     <>
+      <PublicNav />
       <section
         className="relative w-full min-h-svh h-screen p-4 overflow-hidden"
         style={{
@@ -109,8 +110,7 @@ const page = () => {
         >
           <source src="/videos/housing.mp4" type="video/mp4" />
         </video>
-        <div className="relative w-full h-full rounded-lg py-8 px-4 md:px-16 flex flex-col overflow-hidden">
-          <PublicNav />
+        <div className="relative w-full h-full rounded-lg py-8 px-4 md:px-16 flex flex-col overflow-visible">
           <section
             ref={heroRef}
             className="flex flex-col justify-between w-full max-w-3xl mx-auto flex-1 mt-10"
@@ -245,11 +245,19 @@ const page = () => {
           </section>
         </div>
       </section>
-      <WhoWeAre />
+      <section id="about">
+        <WhoWeAre />
+      </section>
       <ServicesSection />
-      <InvestorsDashboard />
-      <HowItWorks />
-      <LicensesSection />
+      <section id="investors-tokenization">
+        <InvestorsDashboard />
+      </section>
+      <section id="projects">
+        <HowItWorks />
+      </section>
+      <section id="impact-sdgs">
+        <LicensesSection />
+      </section>
       <FAQ />
       <ContactSection />
       <CTASection />
