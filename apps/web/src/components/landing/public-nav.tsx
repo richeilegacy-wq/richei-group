@@ -5,16 +5,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Route } from "next";
-import { Menu, X, Phone, ArrowRight } from "lucide-react";
+import { Menu, X, Phone, ArrowRight, ChevronDown } from "lucide-react";
 import gsap from "gsap";
 import {cn} from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const navLinks: { href: Route; label: string }[] = [
+const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/about" as Route, label: "About" },
-  { href: "/#services" as Route, label: "Services" },
-  { href: "/#faq" as Route, label: "FAQ" },
-  { href: "/#contact" as Route, label: "Contact us" },
+  { href: "/#about" as Route, label: "About" },
+  { 
+    href: "/#services" as Route, 
+    label: "Services",
+    dropdown: [
+      { href: "/#services" as Route, label: "Property Development" },
+      { href: "/#services" as Route, label: "Construction" },
+      { href: "/#services" as Route, label: "Land Surveys" },
+      { href: "/#services" as Route, label: "Facility Management" },
+      { href: "/#services" as Route, label: "Property Financing" },
+    ]
+  },
+  { href: "/#projects" as Route, label: "Projects" },
+  { href: "/#investors-tokenization" as Route, label: "Investors & Tokenization" },
+  { href: "/#impact-sdgs" as Route, label: "Impact & SDGs" },
+  { href: "/#contact" as Route, label: "Contact" },
 ];
 
 type PublicNavProps = {
@@ -24,6 +42,20 @@ type PublicNavProps = {
 
 export default function PublicNav({ className, logoVariant = "default" }: PublicNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = (label: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setOpenDropdown(label);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150); // Small delay to prevent accidental closing
+  };
+
   const menuRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -63,7 +95,7 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
   }, [isOpen]);
 
   return (
-    <header className={cn("md:px-8 w-full flex items-center justify-between relative z-50", className)}>
+    <header className={cn("md:px-8 w-full flex items-center justify-between sticky top-0 z-50 bg-white/80 backdrop-blur-md py-4 transition-all duration-300", className)}>
       <Image
         src={logoVariant === "white" ? "/images/logo-white.png" : "/images/logo.png"}
         alt="Logo"
@@ -75,18 +107,52 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
       <nav className="hidden md:flex items-center rounded-full bg-[#fff] p-1.5 pl-6 gap-2 shadow-sm border border-border/5">
         <div className="flex items-center justify-center gap-6 mr-4">
           {navLinks.map((link) => (
-            <Link
-              className="text-base font-medium text-primary/80 hover:text-primary transition-colors"
-              key={link.href}
-              href={link.href}
-            >
-              {link.label}
-            </Link>
+            link.dropdown ? (
+              <div 
+                key={link.label}
+                onMouseEnter={() => handleMouseEnter(link.label)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <DropdownMenu 
+                  open={openDropdown === link.label} 
+                  onOpenChange={(open) => {
+                    if (!open) handleMouseLeave();
+                    else handleMouseEnter(link.label);
+                  }}
+                >
+                  <DropdownMenuTrigger className="flex items-center gap-1 text-base font-medium text-primary/80 hover:text-primary transition-colors outline-none cursor-pointer">
+                    {link.label}
+                    <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", openDropdown === link.label && "rotate-180")} />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    className="bg-white border-border/5 min-w-[200px] z-50"
+                    onMouseEnter={() => handleMouseEnter(link.label)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    {link.dropdown.map((sublink) => (
+                      <DropdownMenuItem key={sublink.label} asChild>
+                        <Link
+                          href={sublink.href as Route}
+                          className="w-full text-sm font-medium text-primary/80 hover:text-primary transition-colors py-2 px-4 block"
+                          onClick={() => setOpenDropdown(null)}
+                        >
+                          {sublink.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <Link
+                className="text-base font-medium text-primary/80 hover:text-primary transition-colors"
+                key={link.href}
+                href={link.href as Route}
+              >
+                {link.label}
+              </Link>
+            )
           ))}
-        </div>
-
-        <div className="flex items-center justify-center px-2">
-          <Phone className="w-5 h-5 text-primary/80 fill-current" />
         </div>
 
         <Button className="text-base rounded-full pl-5 pr-1.5 py-1.5 h-auto" size={"default"}>
@@ -105,7 +171,7 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle menu"
       >
-        {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+        {isOpen ? <X className="w-8 h-8 text-primary" /> : <Menu className="w-8 h-8 text-primary" />}
       </button>
 
       {/* Mobile Menu Overlay */}
@@ -114,16 +180,31 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
         className="fixed inset-0 bg-background flex flex-col items-center justify-center -translate-y-full opacity-0 invisible"
         style={{ transform: "translateY(-100%)" }} // ensure initial state for SSR
       >
-        <div ref={linksRef} className="flex flex-col items-center gap-8">
+        <div ref={linksRef} className="flex flex-col items-center gap-6 overflow-y-auto max-h-[70vh] py-10 px-6">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-3xl font-bold hover:text-primary transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              {link.label}
-            </Link>
+            <div key={link.label} className="flex flex-col items-center gap-4">
+              <Link
+                href={link.href as Route}
+                className="text-2xl font-bold hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.label}
+              </Link>
+              {link.dropdown && (
+                <div className="flex flex-col items-center gap-2">
+                  {link.dropdown.map((sublink) => (
+                    <Link
+                      key={sublink.label}
+                      href={sublink.href as Route}
+                      className="text-lg font-medium text-primary/60 hover:text-primary transition-colors"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {sublink.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
         <Button
