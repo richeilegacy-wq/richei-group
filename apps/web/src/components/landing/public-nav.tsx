@@ -14,6 +14,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -44,6 +51,7 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
 
   const handleMouseEnter = (label: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -166,54 +174,72 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
       </nav>
 
       {/* Mobile Menu Toggle */}
-      <button
-        className="md:hidden z-50 relative p-2"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle menu"
-      >
-        {isOpen ? <X className="w-8 h-8 text-primary" /> : <Menu className="w-8 h-8 text-primary" />}
-      </button>
-
-      {/* Mobile Menu Overlay */}
-      <div
-        ref={menuRef}
-        className="fixed inset-0 bg-background flex flex-col items-center justify-center -translate-y-full opacity-0 invisible"
-        style={{ transform: "translateY(-100%)" }} // ensure initial state for SSR
-      >
-        <div ref={linksRef} className="flex flex-col items-center gap-6 overflow-y-auto max-h-[70vh] py-10 px-6">
-          {navLinks.map((link) => (
-            <div key={link.label} className="flex flex-col items-center gap-4">
-              <Link
-                href={link.href as Route}
-                className="text-2xl font-bold hover:text-primary transition-colors"
+      <div className="md:hidden">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger className="z-50 relative p-2" aria-label="Toggle menu">
+            <Menu className="w-8 h-8 text-primary" />
+          </SheetTrigger>
+          <SheetContent side="left" className="bg-background p-0">
+            <SheetHeader className="p-4 border-b border-border/10">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={75.72}
+                height={41.7}
+              />
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto">
+              <div className="flex flex-col items-start gap-2 p-4">
+                {navLinks.map((link) => (
+                  <div key={link.label} className="w-full">
+                    {link.dropdown ? (
+                      <div>
+                        <button
+                          onClick={() => setOpenMobileDropdown(openMobileDropdown === link.label ? null : link.label)}
+                          className="text-lg font-bold hover:text-primary transition-colors w-full flex justify-between items-center py-2"
+                        >
+                          <span>{link.label}</span>
+                          <ChevronDown className={cn("w-5 h-5 transition-transform duration-200", openMobileDropdown === link.label && "rotate-180")} />
+                        </button>
+                        {openMobileDropdown === link.label && (
+                          <div className="flex flex-col items-start gap-1 pl-4 pt-1 pb-2">
+                            {link.dropdown.map((sublink) => (
+                              <Link
+                                key={sublink.label}
+                                href={sublink.href as Route}
+                                className="text-base font-medium text-primary/80 hover:text-primary transition-colors w-full block py-1.5"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {sublink.label}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        href={link.href as Route}
+                        className="text-lg font-bold hover:text-primary transition-colors w-full block py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 mt-auto border-t border-border/10">
+              <Button
+                className="w-full text-lg rounded-full"
+                size={"lg"}
                 onClick={() => setIsOpen(false)}
               >
-                {link.label}
-              </Link>
-              {link.dropdown && (
-                <div className="flex flex-col items-center gap-2">
-                  {link.dropdown.map((sublink) => (
-                    <Link
-                      key={sublink.label}
-                      href={sublink.href as Route}
-                      className="text-lg font-medium text-primary/60 hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {sublink.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+                <Link href="/auth/sign-in">Get Started</Link>
+              </Button>
             </div>
-          ))}
-        </div>
-        <Button
-          className="text-lg rounded-full mt-8"
-          size={"lg"}
-          onClick={() => setIsOpen(false)}
-        >
-          <Link href="/auth/sign-in">Get Started</Link>
-        </Button>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
