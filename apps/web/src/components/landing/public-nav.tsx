@@ -130,7 +130,7 @@ export default function PublicNav({ className, logoVariant = "default" }: Public
                     onMouseLeave={handleMouseLeave}
                   >
                     {link.dropdown.map((sublink) => (
-                      <DropdownMenuItem key={sublink.label} asChild>
+                      <DropdownMenuItem key={sublink.label} className="p-0">
                         <Link
                           href={sublink.href as Route}
                           className="w-full text-sm font-medium text-primary/80 hover:text-primary transition-colors py-2 px-4 block"
